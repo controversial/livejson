@@ -25,4 +25,4 @@ my_db = livejson.Database("test.json")
 my_db['data'] = {}
 my_db['data']['dogs'] = 'cats'
 ```
-will not work as expected, `my_db['data']` will still be `{}`. However, this is planned for the future by converting all dicts and lists passed to `__setitem__` to special subclasses that will automatically handle writing when *they* are modified.
+will not work as expected; `my_db['data']` will still be `{}`. However, this is planned for the future by converting all dicts and lists passed to `__setitem__` to special subclasses that will automatically handle writing when *they* are modified.
