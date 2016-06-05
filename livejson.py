@@ -8,30 +8,26 @@ import os
 import json
 
 
-class _GenericDatabase(object):
-    """ Class inherited by DictDatabase that implements all the required
-    methods common between collections.MutableMapping and
-    collections.MutableSequence in a way appropriate for JSON file-writing """
-    @property
-    def data(self):
-        """ Get a vanilla dict object (fresh from the JSON file) """
-        with open(self.path, "r") as f:
-            return json.load(f)
+# HELPFUL HELPERS
 
+class _ObjectBase(object):
+    """ Class inherited by most stuff. Implements the lowest common denominator
+    for most stuff """
     def __getitem__(self, key):
-        return self.data[key]
+        out = self.data[key]
 
-    def __setitem__(self, key, value):
-        data = self.data
-        data[key] = value
-        with open(self.path, "w") as f:
-            json.dump(data, f)
-
-    def __delitem__(self, key):
-        data = self.data
-        del data[key]
-        with open(self.path, "w") as f:
-            json.dump(data, f)
+        # Nesting
+        if isinstance(out, (list, dict)):
+            # If it's the top level database, we can use [] for the path
+            pathInData = self.pathInData if hasattr(self, "pathInData") else []
+            newPathInData = pathInData + [key]
+            # If it's the top level database, use self for top level database
+            toplevel = self.basedb if hasattr(self, "basedb") else self
+            nestClass = _NestedList if isinstance(out, list) else _NestedBase
+            return nestClass(toplevel, newPathInData)
+        # Not a list or a dict, don't worry about it
+        else:
+            return out
 
     def __len__(self):
         return len(self.data)
@@ -45,7 +41,98 @@ class _GenericDatabase(object):
         return repr(self.data)
 
 
-class DictDatabase(_GenericDatabase, collections.MutableMapping):
+# NESTING
+
+class _NestedBase(_ObjectBase):
+    """ Inherited by _NestedDict and _NestedList, implements methods common
+    between them. Takes arguments 'db' which specifies the parent database, and
+    'pathToThis' which specifies where in the database this object exists (as a
+    list)."""
+    def __init__(self, db, pathToThis):
+        self.pathInData = pathToThis
+        self.basedb = db
+
+    @property
+    def data(self):
+        # Start with the top-level database data
+        d = self.basedb.data
+        # Navigate through the object to find where self.pathInData points
+        for i in self.pathInData:
+            d = d[i]
+        # And return the result
+        return d
+
+    def __setitem__(self, key, value):
+        # Store the whole data
+        data = self.basedb.data
+        # Iterate through and find the right part of the data
+        d = data
+        for i in self.pathInData:
+            d = d[i]
+        # It is passed by reference, so modifying the found object modifies
+        # the whole thing
+        d[key] = value
+        # Update the whole database with the modification
+        self.basedb._update(data)
+
+    def __delitem__(self, key):
+        # See __setitem__ for details on how this works
+        data = self.basedb.data
+        d = data
+        for i in self.pathInData:
+            d = d[i]
+        del d[key]
+        self.basedb._update(data)
+
+
+class _NestedDict(_NestedBase, collections.MutableMapping):
+    def __iter__(self):
+        return iter(self.data)
+
+
+class _NestedList(_NestedBase, collections.MutableSequence):
+    def insert(self, index, value):
+        # See _NestedBase.__setitem__ for details on how this works
+        data = self.basedb.data
+        d = data
+        for i in self.pathInData:
+            d = d[i]
+        d.insert(index, value)
+        self.basedb._update(data)
+
+
+# THE MAIN STUFF
+
+class _BaseDatabase(_ObjectBase):
+    """ Class inherited by DictDatabase that implements all the required
+    methods common between collections.MutableMapping and
+    collections.MutableSequence in a way appropriate for JSON file-writing """
+    @property
+    def data(self):
+        """ Get a vanilla dict object (fresh from the JSON file) """
+        with open(self.path, "r") as f:
+            return json.load(f)
+
+    def __setitem__(self, key, value):
+        data = self.data
+        data[key] = value
+        with open(self.path, "w") as f:
+            json.dump(data, f)
+
+    def __delitem__(self, key):
+        data = self.data
+        del data[key]
+        with open(self.path, "w") as f:
+            json.dump(data, f)
+
+    def _update(self, data):
+        """ Overwrite the database with new data. You probably shouldn't do
+        this yourself, it's easy to screw up. """
+        with open(self.path, "w") as f:
+            json.dump(data, f)
+
+
+class DictDatabase(_BaseDatabase, collections.MutableMapping):
     """ A class emulating Python's dict that will update a JSON file as it is
     modified """
     def __init__(self, path):
@@ -69,7 +156,7 @@ class DictDatabase(_GenericDatabase, collections.MutableMapping):
         return iter(self.data)
 
 
-class ListDatabase(_GenericDatabase, collections.MutableSequence):
+class ListDatabase(_BaseDatabase, collections.MutableSequence):
     """ A class emulating a Python list that will update a JSON file as it is
     modified. Use this class directly when creating a new database if you want
     the base object to be an array. """
