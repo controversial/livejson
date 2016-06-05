@@ -9,5 +9,5 @@ setup(
                       "reflected in the JSON file"),
     author="Luke Taylor",
     author_email="luke@deentaylor.com",
-    url="http://luke.deentaylor.com/",
+    url="https://github.com/The-Penultimate-Defenestrator/livejson/",
 )
