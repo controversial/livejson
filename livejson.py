@@ -36,6 +36,14 @@ class _GenericDatabase(object):
     def __len__(self):
         return len(self.data)
 
+    # Non-required methods
+
+    def __str__(self):
+        return str(self.data)
+
+    def __repr__(self):
+        return repr(self.data)
+
 
 class DictDatabase(_GenericDatabase, collections.MutableMapping):
     """ A class emulating Python's dict that will update a JSON file as it is
