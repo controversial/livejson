@@ -14,18 +14,30 @@ sudo pip3 install livejson
 After installing, you can just `import livejson` from your code!
 
 ## Example usage
+Creating a new database:
 ```python
 >>> import livejson
 >>> my_db = livejson.Database("test.json")
->>> my_db['dogs'] = "cats"
+>>> my_db["dogs"] = "cats"
 >>> with open("test.json", "r") as f:
 ...     print(f.read())
 ...
 {"dogs": "cats"}
->>> my_db['dogs']
+>>> my_db["dogs"]
 'cats'
 ```
-
+Reading and modifying an existing database:
+```python
+>>> my_db = livejson.Database("test.json")
+>>> my_db["dogs"]
+u'cats'
+>>> my_db["dogs"] = "fish"
+>>> with open("test.json", "r") as f:
+...     print(f.read())
+...
+{"dogs": "fish"}
+>>>
+```
 ## Notes
 This class does not currently support nesting. What this means is that something like this:
 ```python
