@@ -63,9 +63,24 @@ class DictDatabase(_GenericDatabase, collections.MutableMapping):
 
 class ListDatabase(_GenericDatabase, collections.MutableSequence):
     """ A class emulating a Python list that will update a JSON file as it is
-    modified """
+    modified. Use this class directly when creating a new database if you want
+    the base object to be an array. """
     def __init__(self, path):
         self.path = path
+
+        # The database will need to be created if it doesn't exist
+        if not os.path.exists(self.path):
+            # Raise exception if the directory that should contain the file
+            # doesn't exist
+            dirname = os.path.dirname(self.path)
+            if dirname and not os.path.exists(dirname):
+                raise IOError(
+                    ("Could not initialize empty list database in non-existant"
+                     " directory '{}'").format(os.path.dirname(self.path))
+                )
+            # Write an empty database there
+            with open(self.path, "w") as f:
+                f.write("[]")
 
     def insert(self, index, value):
         data = self.data
@@ -85,7 +100,7 @@ def Database(path):
     modification requires IO """
 
     # When creating a blank database, it's better to make the top-level an
-    # Object, rather than an Array, because that's the case in most JSON files
+    # Object, rather than an Array, because that's the case in most JSON files.
     if not os.path.exists(path):
         return DictDatabase(path)
     else:
