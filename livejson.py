@@ -9,6 +9,9 @@ import json
 
 
 class _GenericDatabase(object):
+    """ Class inherited by DictDatabase that implements all the required
+    methods common between collections.MutableMapping and
+    collections.MutableSequence in a way appropriate for JSON file-writing """
     @property
     def data(self):
         """ Get a vanilla dict object (fresh from the JSON file) """
@@ -35,11 +38,8 @@ class _GenericDatabase(object):
 
 
 class DictDatabase(_GenericDatabase, collections.MutableMapping):
-    """ A class emulating a dict that is bound to a JSON file so that as the
-    in-memory object is changed, the file is updated in real-time.
-
-    Note that this class is significantly slower than a dict because every
-    modification requires IO """
+    """ A class emulating Python's dict that will update a JSON file as it is
+    modified """
     def __init__(self, path):
         self.path = path
 
@@ -62,6 +62,8 @@ class DictDatabase(_GenericDatabase, collections.MutableMapping):
 
 
 class ListDatabase(_GenericDatabase, collections.MutableSequence):
+    """ A class emulating a Python list that will update a JSON file as it is
+    modified """
     def __init__(self, path):
         self.path = path
 
@@ -73,6 +75,15 @@ class ListDatabase(_GenericDatabase, collections.MutableSequence):
 
 
 def Database(path):
+    """ An emulation of a Python object, bound to a JSON file so that as
+    the in-memory object is changed, the file is updated in real-time.
+
+    This isn't actually a class, but it returns one, so you can use it as if it
+    was one.
+
+    Note that this class is significantly slower than a dict because every
+    modification requires IO """
+
     # When creating a blank database, it's better to make the top-level an
     # Object, rather than an Array, because that's the case in most JSON files
     if not os.path.exists(path):
