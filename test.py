@@ -10,7 +10,8 @@ class testDatabase(unittest.TestCase):
         # Path to JSON file
         self.dbpath = "test_database.json"
 
-    def test_database_main(self):
+    def test_dict_database(self):
+        """ Test that databases in which the base object is a dict work """
         # Test that a blank database can be properly created
         db = livejson.Database(self.dbpath)
         self.assertTrue(os.path.exists(self.dbpath))
@@ -37,6 +38,21 @@ class testDatabase(unittest.TestCase):
         # Test the extra API I added
         # Test 'data' (get a vanilla dict object)
         self.assertEqual(db.data, {"a": "b"})
+
+    def test_list_database(self):
+        """ Test that databases in which the base object is an array work """
+        # Create the database. Automatically, a blank database has a dict at
+        # the base. So we write "[]" into the file manually so that livejson
+        # detects the databse as a ListDatabase
+        with open(self.dbpath, "w") as f:
+            f.write("[]")
+        db = livejson.Database(self.dbpath)
+        # Test append, extend, and insert
+        db.append("dogs")
+        db.extend(["cats", "penguins"])
+        db.insert(0, "turtles")
+        self.assertIsInstance(db.data, list)
+        self.assertEqual(db.data, ["turtles", "dogs", "cats", "penguins"])
 
     def tearDown(self):
         os.remove(self.dbpath)
