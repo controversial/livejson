@@ -6,9 +6,7 @@ import livejson
 
 class testDatabase(unittest.TestCase):
     """ Test the magical JSON database class """
-    def setUp(self):
-        # Path to JSON file
-        self.dbpath = "test_database.json"
+    dbpath = "test_database.json"
 
     def test_dict_database(self):
         """ Test that databases in which the base object is a dict work """
