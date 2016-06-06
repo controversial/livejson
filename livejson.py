@@ -11,6 +11,27 @@ import json
 # MISC HELPERS
 
 
+def _initdb(path, data="dict"):
+    """ Initialize an empty database """
+    data = {} if data.lower() == "dict" else []
+    # The database will need to be created if it doesn't exist
+    if not os.path.exists(path):
+        # Raise exception if the directory that should contain the file doesn't
+        # exist
+        dirname = os.path.dirname(path)
+        if dirname and not os.path.exists(dirname):
+            raise IOError(
+                ("Could not initialize empty database in non-existant "
+                 "directory '{}'").format(os.path.dirname(path))
+            )
+        # Write an empty database there
+        with open(path, "w") as f:
+            json.dump(data, f)
+        return True
+    else:
+        return False
+
+
 class _ObjectBase(object):
     """ Class inherited by most stuff. Implements the lowest common denominator
     for most stuff """
@@ -156,20 +177,7 @@ class DictDatabase(_BaseDatabase, collections.MutableMapping):
     modified """
     def __init__(self, path):
         self.path = path
-
-        # The database will need to be created if it doesn't exist
-        if not os.path.exists(self.path):
-            # Raise exception if the directory that should contain the file
-            # doesn't exist
-            dirname = os.path.dirname(self.path)
-            if dirname and not os.path.exists(dirname):
-                raise IOError(
-                    ("Could not initialize empty database in non-existant "
-                     "directory '{}'").format(os.path.dirname(self.path))
-                )
-            # Write an empty database there
-            with open(self.path, "w") as f:
-                f.write("{}")
+        _initdb(self.path)
 
     def __iter__(self):
         return iter(self.data)
@@ -185,20 +193,7 @@ class ListDatabase(_BaseDatabase, collections.MutableSequence):
     the base object to be an array. """
     def __init__(self, path):
         self.path = path
-
-        # The database will need to be created if it doesn't exist
-        if not os.path.exists(self.path):
-            # Raise exception if the directory that should contain the file
-            # doesn't exist
-            dirname = os.path.dirname(self.path)
-            if dirname and not os.path.exists(dirname):
-                raise IOError(
-                    ("Could not initialize empty list database in non-existant"
-                     " directory '{}'").format(os.path.dirname(self.path))
-                )
-            # Write an empty database there
-            with open(self.path, "w") as f:
-                f.write("[]")
+        _initdb(self.path, "list")
 
     def insert(self, index, value):
         data = self.data
@@ -211,24 +206,24 @@ class ListDatabase(_BaseDatabase, collections.MutableSequence):
         self.setdata([])
 
 
-def Database(path):
-    """ An emulation of a Python object, bound to a JSON file so that as
-    the in-memory object is changed, the file is updated in real-time.
+class Database(object):
+    """ The main interface of livejson. Emulates a list or a dict, updating a
+    JSON file in real-time as it is modified.
 
-    This isn't actually a class, but it returns one, so you can use it as if it
-    was one.
+    This will be automatically replaced with either a ListDatabase or as
+    DictDatabase based on the contents of your file (DictDatabase by default).
+    """
 
-    Note that this class is significantly slower than a dict because every
-    modification requires IO """
+    def __init__(self, path):
+        # When creating a blank database, it's better to make the top-level an
+        # Object ("dict" in Python), rather than an Array ("list" in python),
+        # because that's the case for most JSON files.
+        self.path = path
+        _initdb(self.path)
 
-    # When creating a blank database, it's better to make the top-level an
-    # Object, rather than an Array, because that's the case in most JSON files.
-    if not os.path.exists(path):
-        return DictDatabase(path)
-    else:
-        with open(path, "r") as f:
+        with open(self.path, "r") as f:
             data = json.load(f)
         if isinstance(data, dict):
-            return DictDatabase(path)
+            self.__class__ = DictDatabase
         elif isinstance(data, list):
-            return ListDatabase(path)
+            self.__class__ = ListDatabase
