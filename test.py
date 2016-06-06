@@ -54,6 +54,27 @@ class testDatabase(unittest.TestCase):
         self.assertIsInstance(db.data, list)
         self.assertEqual(db.data, ["turtles", "dogs", "cats", "penguins"])
 
+    def test_nesting(self):
+        """ Test that you can also work with dicts and lists that appear inside
+        the database, rather than as the top-level object """
+        my_db = livejson.Database(self.dbpath)
+        my_db.cleardata()
+        # Test nested dicts
+        my_db["stored_data"] = {}
+        my_db["stored_data"]["test"] = "value"
+        self.assertEqual(my_db.data, {"stored_data": {"test": "value"}})
+        # Test nested lists
+        my_db["stored_data"] = []
+        my_db["stored_data"].append("test")
+        self.assertEqual(my_db.data, {"stored_data": ["test"]})
+        # Test more complex multilevel nesting
+        my_db["stored_data"] = []
+        my_db["stored_data"].append({})
+        my_db["stored_data"][0]["colors"] = ["green", "purple"]
+        self.assertEqual(my_db.data,
+                         {"stored_data": [{"colors": ["green", "purple"]}]}
+                         )
+
     def tearDown(self):
         os.remove(self.dbpath)
 
