@@ -57,25 +57,33 @@ class testDatabase(unittest.TestCase):
     def test_nesting(self):
         """ Test that you can also work with dicts and lists that appear inside
         the database, rather than as the top-level object """
-        my_db = livejson.Database(self.dbpath)
-        my_db.cleardata()
+        db = livejson.Database(self.dbpath)
+        db.cleardata()
         # Test nested dicts
-        my_db["stored_data"] = {}
-        my_db["stored_data"]["test"] = "value"
-        self.assertEqual(my_db.data, {"stored_data": {"test": "value"}})
+        db["stored_data"] = {}
+        db["stored_data"]["test"] = "value"
+        self.assertEqual(db.data, {"stored_data": {"test": "value"}})
         # Test nested lists
-        my_db["stored_data"] = []
-        my_db["stored_data"].append("test")
-        self.assertEqual(my_db.data, {"stored_data": ["test"]})
+        db["stored_data"] = []
+        db["stored_data"].append("test")
+        self.assertEqual(db.data, {"stored_data": ["test"]})
         # Test more complex multilevel nesting
-        my_db["stored_data"] = []
-        my_db["stored_data"].append({})
-        my_db["stored_data"][0]["colors"] = ["green", "purple"]
-        self.assertEqual(my_db.data,
+        db["stored_data"] = []
+        db["stored_data"].append({})
+        db["stored_data"][0]["colors"] = ["green", "purple"]
+        self.assertEqual(db.data,
                          {"stored_data": [{"colors": ["green", "purple"]}]}
                          )
 
+    def test_switchclass(self):
+        """ Test that it can automatically switch classes """
+        db = livejson.Database(self.dbpath)
+        assert isinstance(db, livejson.DictDatabase)
+        db.setdata([])
+        assert isinstance(db, livejson.ListDatabase)
+
     def tearDown(self):
+        """ Called after _each test_ to remove the database """
         os.remove(self.dbpath)
 
 if __name__ == "__main__":

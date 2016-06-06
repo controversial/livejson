@@ -128,6 +128,13 @@ class _BaseDatabase(_ObjectBase):
         with open(self.path, "w") as f:
             json.dump(data, f)
 
+    def _updateType(self):
+        """ Make sure that the class behaves like the data structure that it
+        is, so that we don't get a ListDatabase trying to represent a dict"""
+        if isinstance(self.data, dict) and isinstance(self, ListDatabase):
+            self.__class__ = DictDatabase
+        elif isinstance(self.data, list) and isinstance(self, DictDatabase):
+            self.__class__ = ListDatabase
     # Bonus features!
 
     def setdata(self, data):
@@ -135,6 +142,7 @@ class _BaseDatabase(_ObjectBase):
         this yourself, it's easy to screw up your whole database with this """
         with open(self.path, "w") as f:
             json.dump(data, f)
+        self._updateType()
 
 
 class DictDatabase(_BaseDatabase, collections.MutableMapping):
