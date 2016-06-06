@@ -8,7 +8,8 @@ import os
 import json
 
 
-# HELPFUL HELPERS
+# MISC HELPERS
+
 
 class _ObjectBase(object):
     """ Class inherited by most stuff. Implements the lowest common denominator
@@ -41,7 +42,8 @@ class _ObjectBase(object):
         return repr(self.data)
 
 
-# NESTING
+# NESTING CLASSES
+
 
 class _NestedBase(_ObjectBase):
     """ Inherited by _NestedDict and _NestedList, implements methods common
@@ -73,7 +75,7 @@ class _NestedBase(_ObjectBase):
         # the whole thing
         d[key] = value
         # Update the whole database with the modification
-        self.basedb._update(data)
+        self.basedb.setdata(data)
 
     def __delitem__(self, key):
         # See __setitem__ for details on how this works
@@ -82,7 +84,7 @@ class _NestedBase(_ObjectBase):
         for i in self.pathInData:
             d = d[i]
         del d[key]
-        self.basedb._update(data)
+        self.basedb.setdata(data)
 
 
 class _NestedDict(_NestedBase, collections.MutableMapping):
@@ -98,10 +100,11 @@ class _NestedList(_NestedBase, collections.MutableSequence):
         for i in self.pathInData:
             d = d[i]
         d.insert(index, value)
-        self.basedb._update(data)
+        self.basedb.setdata(data)
 
 
-# THE MAIN STUFF
+# THE MAIN CLASSES
+
 
 class _BaseDatabase(_ObjectBase):
     """ Class inherited by DictDatabase that implements all the required
@@ -125,9 +128,11 @@ class _BaseDatabase(_ObjectBase):
         with open(self.path, "w") as f:
             json.dump(data, f)
 
-    def _update(self, data):
+    # Bonus features!
+
+    def setdata(self, data):
         """ Overwrite the database with new data. You probably shouldn't do
-        this yourself, it's easy to screw up. """
+        this yourself, it's easy to screw up your whole database with this """
         with open(self.path, "w") as f:
             json.dump(data, f)
 
@@ -154,6 +159,10 @@ class DictDatabase(_BaseDatabase, collections.MutableMapping):
 
     def __iter__(self):
         return iter(self.data)
+
+    def cleardata(self):
+        """ Delete everything. Dangerous. """
+        self.setdata({})
 
 
 class ListDatabase(_BaseDatabase, collections.MutableSequence):
@@ -182,6 +191,10 @@ class ListDatabase(_BaseDatabase, collections.MutableSequence):
         data.insert(index, value)
         with open(self.path, "w") as f:
             json.dump(data, f)
+
+    def cleardata(self):
+        """ Delete everything. Dangerous. """
+        self.setdata([])
 
 
 def Database(path):
