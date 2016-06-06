@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     name="livejson",
     py_modules=["livejson"],
-    version="0.2.2",
+    version="1.0.0",
     description="Bind Python objects to JSON files",
     long_description=("An interface to transparantly bind Python objects to "
                       "JSON files so that all changes made to the object are "
