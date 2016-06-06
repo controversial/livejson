@@ -42,9 +42,8 @@ class testDatabase(unittest.TestCase):
         # Create the database. Automatically, a blank database has a dict at
         # the base. So we write "[]" into the file manually so that livejson
         # detects the databse as a ListDatabase
-        with open(self.dbpath, "w") as f:
-            f.write("[]")
-        db = livejson.Database(self.dbpath)
+        db = livejson.ListDatabase(self.dbpath)
+        self.assertEqual(db.data, [])
         # Test append, extend, and insert
         db.append("dogs")
         db.extend(["cats", "penguins"])
