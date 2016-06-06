@@ -77,10 +77,17 @@ class testDatabase(unittest.TestCase):
 
     def test_switchclass(self):
         """ Test that it can automatically switch classes """
+        # Test switching under normal usage
         db = livejson.Database(self.dbpath)
         assert isinstance(db, livejson.DictDatabase)
         db.setdata([])
         assert isinstance(db, livejson.ListDatabase)
+        # Test switching when the database is manually changed
+        with open(self.dbpath, "w") as f:
+            f.write("{}")
+        # This shouldn't error, it should change types when you do this
+        db["dogs"] = "cats"
+        self.assertIsInstance(db, livejson.DictDatabase)
 
     def tearDown(self):
         """ Called after _each test_ to remove the database """

@@ -113,6 +113,8 @@ class _BaseDatabase(_ObjectBase):
     @property
     def data(self):
         """ Get a vanilla dict object (fresh from the JSON file) """
+        # Update type in case it's changed
+        self._updateType()
         with open(self.path, "r") as f:
             return json.load(f)
 
@@ -131,9 +133,13 @@ class _BaseDatabase(_ObjectBase):
     def _updateType(self):
         """ Make sure that the class behaves like the data structure that it
         is, so that we don't get a ListDatabase trying to represent a dict"""
-        if isinstance(self.data, dict) and isinstance(self, ListDatabase):
+        # Do this manually to avoid infinite recursion
+        with open(self.path, "r") as f:
+            data = json.load(f)
+        # Change type if needed
+        if isinstance(data, dict) and isinstance(self, ListDatabase):
             self.__class__ = DictDatabase
-        elif isinstance(self.data, list) and isinstance(self, DictDatabase):
+        elif isinstance(data, list) and isinstance(self, DictDatabase):
             self.__class__ = ListDatabase
     # Bonus features!
 
