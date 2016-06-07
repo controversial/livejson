@@ -176,6 +176,7 @@ class _BaseDatabase(_ObjectBase):
         """ Delete the database from the disk completely """
         os.remove(self.path)
 
+
 class DictDatabase(_BaseDatabase, collections.MutableMapping):
     """ A class emulating Python's dict that will update a JSON file as it is
     modified """
