@@ -228,3 +228,20 @@ class Database(object):
             self.__class__ = DictDatabase
         elif isinstance(data, list):
             self.__class__ = ListDatabase
+
+    @staticmethod
+    def with_data(path, data):
+        """ Initialize a new database that starts out with some data. Pass data
+        as a list, dict, or JSON string. """
+        # De-jsonize data if necessary
+        if isinstance(data, str):
+            data = json.loads(data)
+
+        # Make sure this is really a new database
+        if os.path.exists(path):
+            raise ValueError("Database exists, not overwriting data. Use "
+                             "'setdata' if you really want to do this.")
+        else:
+            db = Database(path)
+            db.setdata(data)
+            return db
