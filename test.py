@@ -11,21 +11,30 @@ class testDatabase(unittest.TestCase):
     def test_dict_database(self):
         """ Test that databases in which the base object is a dict work """
         # Test that a blank database can be properly created
-        db = livejson.Database(self.dbpath)
+        db = livejson.Database(self.dbpath)  # Tests that DictDatabase is default
         self.assertTrue(os.path.exists(self.dbpath))
         with open(self.dbpath, "r") as f:
             self.assertEqual(f.read(), "{}")
-
         # Test writing to a database
         db["a"] = "b"
-
         # Test reading values from an existing database
-        newInstance = livejson.Database(self.dbpath).data
+        newInstance = livejson.DictDatabase(self.dbpath).data  # Test explicit Dict
         self.assertEqual(newInstance["a"], "b")
-
+        # Test deleting values
+        db["c"] = "d"
+        self.assertIn("c", db)  # This also conviently tests __contains__
+        del db["c"]
+        self.assertNotIn("c", db)
+        # Test error for raising in extra directories
+        self.assertRaises(IOError, livejson.Database, "a/b/c.py")
         # Test the extra API I added
         # Test 'data' (get a vanilla dict object)
         self.assertEqual(db.data, {"a": "b"})
+        # Test __str__ and __repr__
+        self.assertEqual(str(db), str(db.data))
+        self.assertEqual(repr(db), repr(db.data))
+        # Test __iter__
+        self.assertEqual(list(db), list(db.keys()))
 
     def test_list_database(self):
         """ Test that databases in which the base object is an array work """
@@ -40,7 +49,13 @@ class testDatabase(unittest.TestCase):
         db.insert(0, "turtles")
         self.assertIsInstance(db.data, list)
         self.assertEqual(db.data, ["turtles", "dogs", "cats", "penguins"])
-
+        # Test clear_data
+        db.clear_data()
+        self.assertEqual(len(db), 0)
+        # Test creating a new ListDatabase automatically when file is an Array
+        db2 = livejson.Database(self.dbpath)
+        self.assertIsInstance(db2, livejson.ListDatabase)
+        
     def test_nesting(self):
         """ Test that you can also work with dicts and lists that appear inside
         the database, rather than as the top-level object """
@@ -61,6 +76,14 @@ class testDatabase(unittest.TestCase):
         self.assertEqual(db.data,
                          {"stored_data": [{"colors": ["green", "purple"]}]}
                          )
+        # Test that the old __getitem__ still works
+        self.assertEqual(db["stored_data"][0]["colors"][0], "green")
+        # Test deleting values
+        db["stored_data"].pop(0)
+        self.assertEqual(len(db["stored_data"]), 0)
+        # Test __iter__ on nested dict
+        db["stored_data"] = {"a": "b", "c": "d"}
+        self.assertEqual(list(db["stored_data"]), list(db["stored_data"].keys()))
 
     def test_switchclass(self):
         """ Test that it can automatically switch classes """
@@ -81,6 +104,9 @@ class testDatabase(unittest.TestCase):
         self.assertEqual(db.data, ["a", "b", "c"])
         with self.assertRaises(ValueError):
             livejson.Database.with_data(self.dbpath, {})
+        # Test initialization from JSON string
+        os.remove(self.dbpath)
+        db2 = livejson.Database.with_data(self.dbpath, "[\"a\", \"b\", \"c\"]")
 
     def tearDown(self):
         """ Called after _each test_ to remove the database """
