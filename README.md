@@ -1,4 +1,7 @@
 # `livejson`
+
+![](https://circleci.com/gh/The-Penultimate-Defenestrator/livejson.svg?style=shield&circle-token=7450328e0990da5c6fbb0c9b2ecf84f110481f99)
+
 A Python library implementing a `dict`-like object that writes to a file as it is modified
 
 `livejson` is:
