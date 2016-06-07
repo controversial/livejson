@@ -1,5 +1,6 @@
 # `livejson`
 [![Build Status](https://travis-ci.org/The-Penultimate-Defenestrator/livejson.svg?branch=master)](https://travis-ci.org/The-Penultimate-Defenestrator/livejson)
+[![Coverage Status](https://coveralls.io/repos/github/The-Penultimate-Defenestrator/livejson/badge.svg?branch=master)](https://coveralls.io/github/The-Penultimate-Defenestrator/livejson?branch=master)
 
 A Python library implementing a `dict`-like object that writes to a file as it is modified
 
