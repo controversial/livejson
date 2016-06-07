@@ -96,7 +96,7 @@ class _NestedBase(_ObjectBase):
         # the whole thing
         d[key] = value
         # Update the whole database with the modification
-        self.basedb.setdata(data)
+        self.basedb.set_data(data)
 
     def __delitem__(self, key):
         # See __setitem__ for details on how this works
@@ -105,7 +105,7 @@ class _NestedBase(_ObjectBase):
         for i in self.pathInData:
             d = d[i]
         del d[key]
-        self.basedb.setdata(data)
+        self.basedb.set_data(data)
 
 
 class _NestedDict(_NestedBase, collections.MutableMapping):
@@ -121,7 +121,7 @@ class _NestedList(_NestedBase, collections.MutableSequence):
         for i in self.pathInData:
             d = d[i]
         d.insert(index, value)
-        self.basedb.setdata(data)
+        self.basedb.set_data(data)
 
 
 # THE MAIN CLASSES
@@ -165,7 +165,7 @@ class _BaseDatabase(_ObjectBase):
 
     # Bonus features!
 
-    def setdata(self, data):
+    def set_data(self, data):
         """ Overwrite the database with new data. You probably shouldn't do
         this yourself, it's easy to screw up your whole database with this """
         with open(self.path, "w") as f:
@@ -183,9 +183,9 @@ class DictDatabase(_BaseDatabase, collections.MutableMapping):
     def __iter__(self):
         return iter(self.data)
 
-    def cleardata(self):
+    def clear_data(self):
         """ Delete everything. Dangerous. """
-        self.setdata({})
+        self.set_data({})
 
 
 class ListDatabase(_BaseDatabase, collections.MutableSequence):
@@ -202,9 +202,9 @@ class ListDatabase(_BaseDatabase, collections.MutableSequence):
         with open(self.path, "w") as f:
             json.dump(data, f)
 
-    def cleardata(self):
+    def clear_data(self):
         """ Delete everything. Dangerous. """
-        self.setdata([])
+        self.set_data([])
 
 
 class Database(object):
@@ -240,8 +240,8 @@ class Database(object):
         # Make sure this is really a new database
         if os.path.exists(path):
             raise ValueError("Database exists, not overwriting data. Use "
-                             "'setdata' if you really want to do this.")
+                             "'set_data' if you really want to do this.")
         else:
             db = Database(path)
-            db.setdata(data)
+            db.set_data(data)
             return db

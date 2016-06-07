@@ -55,7 +55,7 @@ class testDatabase(unittest.TestCase):
         """ Test that you can also work with dicts and lists that appear inside
         the database, rather than as the top-level object """
         db = livejson.Database(self.dbpath)
-        db.cleardata()
+        db.clear_data()
         # Test nested dicts
         db["stored_data"] = {}
         db["stored_data"]["test"] = "value"
@@ -77,7 +77,7 @@ class testDatabase(unittest.TestCase):
         # Test switching under normal usage
         db = livejson.Database(self.dbpath)
         assert isinstance(db, livejson.DictDatabase)
-        db.setdata([])
+        db.set_data([])
         assert isinstance(db, livejson.ListDatabase)
         # Test switching when the database is manually changed
         with open(self.dbpath, "w") as f:
