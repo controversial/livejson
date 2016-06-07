@@ -162,6 +162,7 @@ class _BaseDatabase(_ObjectBase):
             self.__class__ = DictDatabase
         elif isinstance(data, list) and isinstance(self, DictDatabase):
             self.__class__ = ListDatabase
+
     # Bonus features!
 
     def setdata(self, data):
