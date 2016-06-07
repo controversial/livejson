@@ -3,6 +3,8 @@ python:
   - "2.7"
   - "3.5"
 install: pip install coveralls
-script: python test.py
+script:
+  - python test.py
+  - coverage run --source=livejson.py test.py
 after_success:
   coveralls
