@@ -23,16 +23,6 @@ class testDatabase(unittest.TestCase):
         newInstance = livejson.Database(self.dbpath).data
         self.assertEqual(newInstance["a"], "b")
 
-        # Test the methods inherited from collections.MutableMapping
-        # Test 'get'
-        self.assertEqual(db.get("a"), "b")
-        self.assertIsNone(db.get("penguins"))
-        self.assertEqual(db.get("penguins", "fallback"), "fallback")
-        # Test '__contains__'
-        self.assertIn("a", db)
-        # Test '__eq__'
-        self.assertEqual(db, {"a": "b"})
-
         # Test the extra API I added
         # Test 'data' (get a vanilla dict object)
         self.assertEqual(db.data, {"a": "b"})
