@@ -36,6 +36,9 @@ class testDatabase(unittest.TestCase):
         self.assertEqual(repr(db), repr(db.data))
         # Test __iter__
         self.assertEqual(list(db), list(db.keys()))
+        # Test remove()
+        db.remove()
+        self.assertFalse(os.path.exists(self.dbpath))
 
     def test_list_database(self):
         """ Test that databases in which the base object is an array work """
@@ -112,7 +115,8 @@ class testDatabase(unittest.TestCase):
 
     def tearDown(self):
         """ Called after _each test_ to remove the database """
-        os.remove(self.dbpath)
+        if os.path.exists(self.dbpath):
+            os.remove(self.dbpath)
 
 if __name__ == "__main__":
     unittest.main()
