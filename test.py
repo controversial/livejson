@@ -76,9 +76,9 @@ class testDatabase(unittest.TestCase):
         """ Test that it can automatically switch classes """
         # Test switching under normal usage
         db = livejson.Database(self.dbpath)
-        assert isinstance(db, livejson.DictDatabase)
+        self.assertIsInstance(db, livejson.DictDatabase)
         db.set_data([])
-        assert isinstance(db, livejson.ListDatabase)
+        self.assertIsInstance(db, livejson.ListDatabase)
         # Test switching when the database is manually changed
         with open(self.dbpath, "w") as f:
             f.write("{}")
