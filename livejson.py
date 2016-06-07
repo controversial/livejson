@@ -45,7 +45,7 @@ class _ObjectBase(object):
             newPathInData = pathInData + [key]
             # If it's the top level database, use self for top level database
             toplevel = self.basedb if hasattr(self, "basedb") else self
-            nestClass = _NestedList if isinstance(out, list) else _NestedBase
+            nestClass = _NestedList if isinstance(out, list) else _NestedDict
             return nestClass(toplevel, newPathInData)
         # Not a list or a dict, don't worry about it
         else:
