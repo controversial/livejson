@@ -9,16 +9,17 @@ class testDatabase(unittest.TestCase):
     dbpath = "test_database.json"
 
     def test_dict_database(self):
-        """ Test that databases in which the base object is a dict work """
+        """ Test that databases in which the base object is a dict work. This
+        also tests all the shared methods"""
         # Test that a blank database can be properly created
-        db = livejson.Database(self.dbpath)  # Tests that DictDatabase is default
+        db = livejson.Database(self.dbpath)  # Test DictDatabase is default
         self.assertTrue(os.path.exists(self.dbpath))
         with open(self.dbpath, "r") as f:
             self.assertEqual(f.read(), "{}")
         # Test writing to a database
         db["a"] = "b"
         # Test reading values from an existing database
-        newInstance = livejson.DictDatabase(self.dbpath).data  # Test explicit Dict
+        newInstance = livejson.DictDatabase(self.dbpath).data  # Test explicit
         self.assertEqual(newInstance["a"], "b")
         # Test deleting values
         db["c"] = "d"
@@ -55,7 +56,7 @@ class testDatabase(unittest.TestCase):
         # Test creating a new ListDatabase automatically when file is an Array
         db2 = livejson.Database(self.dbpath)
         self.assertIsInstance(db2, livejson.ListDatabase)
-        
+
     def test_nesting(self):
         """ Test that you can also work with dicts and lists that appear inside
         the database, rather than as the top-level object """
@@ -83,7 +84,8 @@ class testDatabase(unittest.TestCase):
         self.assertEqual(len(db["stored_data"]), 0)
         # Test __iter__ on nested dict
         db["stored_data"] = {"a": "b", "c": "d"}
-        self.assertEqual(list(db["stored_data"]), list(db["stored_data"].keys()))
+        self.assertEqual(list(db["stored_data"]),
+                         list(db["stored_data"].keys()))
 
     def test_switchclass(self):
         """ Test that it can automatically switch classes """
