@@ -89,8 +89,8 @@ class testDatabase(unittest.TestCase):
     def test_with_data(self):
         db = livejson.Database.with_data(self.dbpath, ["a", "b", "c"])
         self.assertEqual(db.data, ["a", "b", "c"])
-        self.assertRaises(ValueError, livejson.Database.with_data,
-                          self.dbpath, {})
+        with self.assertRaises(ValueError):
+            livejson.Database.with_data(self.dbpath, {})
 
     def tearDown(self):
         """ Called after _each test_ to remove the database """
