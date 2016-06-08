@@ -112,6 +112,7 @@ class testDatabase(unittest.TestCase):
         # Test initialization from JSON string
         os.remove(self.dbpath)
         db2 = livejson.Database.with_data(self.dbpath, "[\"a\", \"b\", \"c\"]")
+        self.assertEqual(len(db2), 3)
 
     def tearDown(self):
         """ Called after _each test_ to remove the database """
