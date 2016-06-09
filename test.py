@@ -36,6 +36,12 @@ class testDatabase(unittest.TestCase):
         self.assertEqual(repr(db), repr(db.data))
         # Test __iter__
         self.assertEqual(list(db), list(db.keys()))
+        # Test error on non-string keys
+        with self.assertRaises(TypeError):
+            db[True] = "test"
+        # Test that storing numeric keys raises an additional error message
+        with self.assertRaisesRegexp(TypeError, "Try using a"):
+            db[0] = "abc"
         # Test remove()
         db.remove()
         self.assertFalse(os.path.exists(self.dbpath))
@@ -89,6 +95,12 @@ class testDatabase(unittest.TestCase):
         db["stored_data"] = {"a": "b", "c": "d"}
         self.assertEqual(list(db["stored_data"]),
                          list(db["stored_data"].keys()))
+        # Test that storing non-string keys in a nested dict throws an error
+        with self.assertRaises(TypeError):
+            db["stored_data"][True] = "test"
+        # Test that storing numeric keys raises an additional error message
+        with self.assertRaisesRegexp(TypeError, "Try using a"):
+            db["stored_data"][0] = "abc"
 
     def test_switchclass(self):
         """ Test that it can automatically switch classes """

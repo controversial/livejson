@@ -54,7 +54,7 @@ class _ObjectBase(object):
     def __len__(self):
         return len(self.data)
 
-    # Non-required methods
+    # Methods not-required by the ABC
 
     def __str__(self):
         return str(self.data)
@@ -62,6 +62,10 @@ class _ObjectBase(object):
     def __repr__(self):
         return repr(self.data)
 
+    # MISC
+    def _checkType(self, key):
+        """ Make sure the type of a key is appropriate """
+        pass
 
 # NESTING CLASSES
 
@@ -86,6 +90,7 @@ class _NestedBase(_ObjectBase):
         return d
 
     def __setitem__(self, key, value):
+        self._checkType(key)
         # Store the whole data
         data = self.basedb.data
         # Iterate through and find the right part of the data
@@ -111,6 +116,13 @@ class _NestedBase(_ObjectBase):
 class _NestedDict(_NestedBase, collections.MutableMapping):
     def __iter__(self):
         return iter(self.data)
+
+    def _checkType(self, key):
+        if not isinstance(key, str):
+            raise TypeError("JSON only supports strings for keys, not '{}'. {}"
+                            .format(type(key).__name__, "Try using a list for"
+                                    " storing numeric keys" if
+                                    isinstance(key, int) else ""))
 
 
 class _NestedList(_NestedBase, collections.MutableSequence):
@@ -140,6 +152,7 @@ class _BaseDatabase(_ObjectBase):
             return json.load(f)
 
     def __setitem__(self, key, value):
+        self._checkType(key)
         data = self.data
         data[key] = value
         with open(self.path, "w") as f:
@@ -190,6 +203,13 @@ class DictDatabase(_BaseDatabase, collections.MutableMapping):
     def clear_data(self):
         """ Delete everything. Dangerous. """
         self.set_data({})
+
+    def _checkType(self, key):
+        if not isinstance(key, str):
+            raise TypeError("JSON only supports strings for keys, not '{}'. {}"
+                            .format(type(key).__name__, "Try using a list for"
+                                    " storing numeric keys" if
+                                    isinstance(key, int) else ""))
 
 
 class ListDatabase(_BaseDatabase, collections.MutableSequence):
