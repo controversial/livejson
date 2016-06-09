@@ -1,4 +1,5 @@
-# `livejson`
+![livejson](http://luke.deentaylor.com/siteassets/livejson-banner-light.png)
+
 [![Build Status](https://travis-ci.org/The-Penultimate-Defenestrator/livejson.svg?branch=master)](https://travis-ci.org/The-Penultimate-Defenestrator/livejson)
 [![Coverage Status](https://coveralls.io/repos/github/The-Penultimate-Defenestrator/livejson/badge.svg?branch=master)](https://coveralls.io/github/The-Penultimate-Defenestrator/livejson?branch=master)
 
