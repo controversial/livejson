@@ -13,13 +13,13 @@ A Python library implementing a `dict`-like object that writes to a file as it i
 - **Compatible**: `livejson` works perfectly on both Python 2 and Python 3.
 - **Lightweight**: `livejson` is a single file with no external dependencies. Just install and go!
 - **Reliable**: no caching is used. Every single time you access a `livejson.Database`, it's read straight from the file. And every time you write to it, the change is instant. No delays, no conflicts.
-- **100% test coverage** 🎉
+- **100% test covered** Yay 🎉
 
 `livejson` can be used for:
 
 - **Database storage**: you can use `livejson` to easily write flexible JSON databases, without having to worry about complex `open` and `close` operations, or learning how to use the `json` module.
 - **Debugging**: You can use `livejson` to back up your Python objects. If you use a `livejson.Database` instead of a `dict` or a `list` and your script crashes you'll still  have a hard copy of your object. And you barely had to change any of your code.
-- **General-purpose JSON**: If your script or application needs to interact with JSON files in any way, consider using `livejson`, for simplicity's sake. `livejson` can make your code easier to read and understand, and also save you time. 
+- **General-purpose JSON**: If your script or application needs to interact with JSON files in any way, consider using `livejson`, for simplicity's sake. `livejson` can make your code easier to read and understand, and also save you time.
 
 Thanks to [dgelessus](https://github.com/dgelessus) for naming this project.
 
