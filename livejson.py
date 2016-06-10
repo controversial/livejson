@@ -143,6 +143,11 @@ class _BaseDatabase(_ObjectBase):
     """ Class inherited by DictDatabase that implements all the required
     methods common between collections.MutableMapping and
     collections.MutableSequence in a way appropriate for JSON file-writing """
+    def __init__(self, path):
+        self.path = path
+        _initdb(self.path,
+                "list" if isinstance(self, ListDatabase) else "dict")
+
     @property
     def data(self):
         """ Get a vanilla dict object (fresh from the JSON file) """
@@ -193,10 +198,6 @@ class _BaseDatabase(_ObjectBase):
 class DictDatabase(_BaseDatabase, collections.MutableMapping):
     """ A class emulating Python's dict that will update a JSON file as it is
     modified """
-    def __init__(self, path):
-        self.path = path
-        _initdb(self.path)
-
     def __iter__(self):
         return iter(self.data)
 
@@ -216,10 +217,6 @@ class ListDatabase(_BaseDatabase, collections.MutableSequence):
     """ A class emulating a Python list that will update a JSON file as it is
     modified. Use this class directly when creating a new database if you want
     the base object to be an array. """
-    def __init__(self, path):
-        self.path = path
-        _initdb(self.path, "list")
-
     def insert(self, index, value):
         data = self.data
         data.insert(index, value)
