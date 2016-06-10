@@ -4,7 +4,7 @@ import unittest
 import livejson
 
 
-class testDatabase(unittest.TestCase):
+class TestDatabase(unittest.TestCase):
     """ Test the magical JSON database class """
     dbpath = "test_database.json"
 
@@ -26,31 +26,10 @@ class testDatabase(unittest.TestCase):
         self.assertIn("c", db)  # This also conviently tests __contains__
         del db["c"]
         self.assertNotIn("c", db)
-        # Test error for raising in extra directories
-        self.assertRaises(IOError, livejson.Database, "a/b/c.py")
-        # Test the extra API I added
-        # Test 'data' (get a vanilla dict object)
-        self.assertEqual(db.data, {"a": "b"})
-        # Test __str__ and __repr__
-        self.assertEqual(str(db), str(db.data))
-        self.assertEqual(repr(db), repr(db.data))
-        # Test __iter__
-        self.assertEqual(list(db), list(db.keys()))
-        # Test error on non-string keys
-        with self.assertRaises(TypeError):
-            db[True] = "test"
-        # Test that storing numeric keys raises an additional error message
-        with self.assertRaisesRegexp(TypeError, "Try using a"):
-            db[0] = "abc"
-        # Test remove()
-        db.remove()
-        self.assertFalse(os.path.exists(self.dbpath))
 
     def test_list_database(self):
         """ Test that databases in which the base object is an array work """
-        # Create the database. Automatically, a blank database has a dict at
-        # the base. So we write "[]" into the file manually so that livejson
-        # detects the databse as a ListDatabase
+        # Create the database.
         db = livejson.ListDatabase(self.dbpath)
         self.assertEqual(db.data, [])
         # Test append, extend, and insert
@@ -66,41 +45,23 @@ class testDatabase(unittest.TestCase):
         db2 = livejson.Database(self.dbpath)
         self.assertIsInstance(db2, livejson.ListDatabase)
 
-    def test_nesting(self):
-        """ Test that you can also work with dicts and lists that appear inside
-        the database, rather than as the top-level object """
+    def test_special_stuff(self):
+        """ Test all the not-strictly-necessary extra API that I added """
         db = livejson.Database(self.dbpath)
+        db["a"] = "b"
+        # Test 'data' (get a vanilla dict object)
+        self.assertEqual(db.data, {"a": "b"})
+        # Test __str__ and __repr__
+        self.assertEqual(str(db), str(db.data))
+        self.assertEqual(repr(db), repr(db.data))
+        # Test __iter__
+        self.assertEqual(list(db), list(db.keys()))
+        # Test clear_data
         db.clear_data()
-        # Test nested dicts
-        db["stored_data"] = {}
-        db["stored_data"]["test"] = "value"
-        self.assertEqual(db.data, {"stored_data": {"test": "value"}})
-        # Test nested lists
-        db["stored_data"] = []
-        db["stored_data"].append("test")
-        self.assertEqual(db.data, {"stored_data": ["test"]})
-        # Test more complex multilevel nesting
-        db["stored_data"] = []
-        db["stored_data"].append({})
-        db["stored_data"][0]["colors"] = ["green", "purple"]
-        self.assertEqual(db.data,
-                         {"stored_data": [{"colors": ["green", "purple"]}]}
-                         )
-        # Test that the old __getitem__ still works
-        self.assertEqual(db["stored_data"][0]["colors"][0], "green")
-        # Test deleting values
-        db["stored_data"].pop(0)
-        self.assertEqual(len(db["stored_data"]), 0)
-        # Test __iter__ on nested dict
-        db["stored_data"] = {"a": "b", "c": "d"}
-        self.assertEqual(list(db["stored_data"]),
-                         list(db["stored_data"].keys()))
-        # Test that storing non-string keys in a nested dict throws an error
-        with self.assertRaises(TypeError):
-            db["stored_data"][True] = "test"
-        # Test that storing numeric keys raises an additional error message
-        with self.assertRaisesRegexp(TypeError, "Try using a"):
-            db["stored_data"][0] = "abc"
+        self.assertEqual(len(db.data), 0)
+        # Test remove()
+        db.remove()
+        self.assertFalse(os.path.exists(self.dbpath))
 
     def test_switchclass(self):
         """ Test that it can automatically switch classes """
@@ -116,20 +77,97 @@ class testDatabase(unittest.TestCase):
         db["dogs"] = "cats"
         self.assertIsInstance(db, livejson.DictDatabase)
 
-    def test_with_data(self):
+    def test_staticmethod_initalization(self):
+        """ Test initializing the Database in special ways with custom
+        staticmethods """
         db = livejson.Database.with_data(self.dbpath, ["a", "b", "c"])
         self.assertEqual(db.data, ["a", "b", "c"])
-        with self.assertRaises(ValueError):
-            livejson.Database.with_data(self.dbpath, {})
         # Test initialization from JSON string
         os.remove(self.dbpath)
         db2 = livejson.Database.with_data(self.dbpath, "[\"a\", \"b\", \"c\"]")
         self.assertEqual(len(db2), 3)
 
+    def test_errors(self):
+        """ Test the errors that are set up """
+        db = livejson.Database(self.dbpath)
+
+        # Test error for trying to initialize in non-existant directories
+        self.assertRaises(IOError, livejson.Database, "a/b/c.py")
+        # Test error when trying to store non-string keys
+        with self.assertRaises(TypeError):
+            db[True] = "test"
+        # Test that storing numeric keys raises a more helpful error message
+        with self.assertRaisesRegexp(TypeError, "Try using a"):
+            db[0] = "abc"
+        # When initializing using with_data, test that an error is thrown if
+        # the file already exists
+        with self.assertRaises(ValueError):
+            livejson.Database.with_data(self.dbpath, {})
+
+
     def tearDown(self):
-        """ Called after _each test_ to remove the database """
+        """ Called after each test to remove the database """
         if os.path.exists(self.dbpath):
             os.remove(self.dbpath)
+
+
+class TestNesting(unittest.TestCase):
+    dbpath = "test_database.json"
+
+    def test_list_nesting(self):
+        """ Test the nesting of lists inside a livejson.Database """
+        db = livejson.Database(self.dbpath)
+        db["stored_data"] = {}
+        db["stored_data"]["test"] = "value"
+        self.assertEqual(db.data, {"stored_data": {"test": "value"}})
+
+    def test_dict_nesting(self):
+        """ Test the nesting of dicts inside a livejson.Database """
+        db = livejson.Database(self.dbpath)
+        db["stored_data"] = []
+        db["stored_data"].append("test")
+        self.assertEqual(db.data, {"stored_data": ["test"]})
+
+    def test_multilevel_nesting(self):
+        """ Test that you can nest stuff inside nested stuff :O """
+        db = livejson.Database(self.dbpath)
+        db["stored_data"] = []
+        db["stored_data"].append({})
+        db["stored_data"][0]["colors"] = ["green", "purple"]
+        self.assertEqual(db.data,
+                         {"stored_data": [{"colors": ["green", "purple"]}]}
+                         )
+
+    def test_misc_methods(self):
+        db = livejson.Database(self.dbpath)
+        db["stored_data"] = [{"colors": ["green"]}]
+        # Test that normal __getitem__ still works
+        self.assertEqual(db["stored_data"][0]["colors"][0], "green")
+        # Test deleting values
+        db["stored_data"][0]["colors"].pop(0)
+        self.assertEqual(len(db["stored_data"][0]["colors"]), 0)
+        # Test __iter__ on nested dict
+        db["stored_data"] = {"a": "b", "c": "d"}
+        self.assertEqual(list(db["stored_data"]),
+                         list(db["stored_data"].keys()))
+
+    def test_errors(self):
+        """ Test the errors that are thrown """
+        db = livejson.Database(self.dbpath)
+        db["data"] = {}
+        # Test that storing non-string keys in a nested dict throws an error
+        with self.assertRaises(TypeError):
+            db["data"][True] = "test"
+        # Test that storing numeric keys raises an additional error message
+        with self.assertRaisesRegexp(TypeError, "Try using a"):
+            db["data"][0] = "abc"
+
+
+    def tearDown(self):
+        """ Called after each test to remove the database """
+        if os.path.exists(self.dbpath):
+            os.remove(self.dbpath)
+
 
 if __name__ == "__main__":
     unittest.main()
