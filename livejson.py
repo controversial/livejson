@@ -149,6 +149,8 @@ class _BaseDatabase(_ObjectBase):
                 "list" if isinstance(self, ListDatabase) else "dict")
 
     def _data(self):
+        """ A simplified version of 'data' to avoid infinite recursion in some
+        cases. Don't use this. """
         if self.is_caching:
             return self.cache
         with open(self.path, "r") as f:
@@ -156,7 +158,7 @@ class _BaseDatabase(_ObjectBase):
 
     @property
     def data(self):
-        """ Get a vanilla dict object (fresh from the JSON file) """
+        """ Get a vanilla dict object to represent the database """
         # Update type in case it's changed
         self._updateType()
         # And return

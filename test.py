@@ -188,6 +188,8 @@ class TestTransactions(_DatabaseTest, unittest.TestCase):
         self.assertEqual(db.file_contents, "[]")
 
     def test_misc(self):
+        """ Test miscellaneous other things that seem like they might break
+        with a transaction """
         db = livejson.Database(self.dbpath)
         # Test is_caching, and test that data works with the cache
         self.assertEqual(db.is_caching, False)
