@@ -177,8 +177,19 @@ class TestTransactions(_DatabaseTest, unittest.TestCase):
             self.assertEqual(db.file_contents, "{}")
         self.assertEqual(db.file_contents, "{\"a\": \"b\"}")
 
+    def test_switchclass(self):
+        """ Test the switching of classes during a transaction """
+        db = livejson.Database(self.dbpath)
+        with db:
+            self.assertIsInstance(db, livejson.DictDatabase)
+            db.set_data([])
+            self.assertIsInstance(db, livejson.ListDatabase)
+            self.assertEqual(db.file_contents, "{}")
+        self.assertEqual(db.file_contents, "[]")
+
     def test_misc(self):
         db = livejson.Database(self.dbpath)
+        # Test is_caching, and test that data works with the cache
         self.assertEqual(db.is_caching, False)
         with db:
             self.assertEqual(db.is_caching, True)
