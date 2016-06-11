@@ -59,6 +59,8 @@ class TestDatabase(_DatabaseTest, unittest.TestCase):
         db["a"] = "b"
         # Test 'data' (get a vanilla dict object)
         self.assertEqual(db.data, {"a": "b"})
+        # Test file_contents
+        self.assertEqual(db.file_contents, "{\"a\": \"b\"}")
         # Test __str__ and __repr__
         self.assertEqual(str(db), str(db.data))
         self.assertEqual(repr(db), repr(db.data))
