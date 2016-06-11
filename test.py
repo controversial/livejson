@@ -4,10 +4,18 @@ import unittest
 import livejson
 
 
-class TestDatabase(unittest.TestCase):
-    """ Test the magical JSON database class """
+class _DatabaseTest():
     dbpath = "test_database.json"
 
+    def tearDown(self):
+        """ Called after each test to remove the database """
+        if os.path.exists(self.dbpath):
+            os.remove(self.dbpath)
+
+
+
+class TestDatabase(_DatabaseTest, unittest.TestCase):
+    """ Test the magical JSON database class """
     def test_dict_database(self):
         """ Test that databases in which the base object is a dict work. This
         also tests all the shared methods"""
@@ -105,15 +113,7 @@ class TestDatabase(unittest.TestCase):
             livejson.Database.with_data(self.dbpath, {})
 
 
-    def tearDown(self):
-        """ Called after each test to remove the database """
-        if os.path.exists(self.dbpath):
-            os.remove(self.dbpath)
-
-
-class TestNesting(unittest.TestCase):
-    dbpath = "test_database.json"
-
+class TestNesting(_DatabaseTest, unittest.TestCase):
     def test_list_nesting(self):
         """ Test the nesting of lists inside a livejson.Database """
         db = livejson.Database(self.dbpath)
@@ -161,12 +161,6 @@ class TestNesting(unittest.TestCase):
         # Test that storing numeric keys raises an additional error message
         with self.assertRaisesRegexp(TypeError, "Try using a"):
             db["data"][0] = "abc"
-
-
-    def tearDown(self):
-        """ Called after each test to remove the database """
-        if os.path.exists(self.dbpath):
-            os.remove(self.dbpath)
 
 
 if __name__ == "__main__":
