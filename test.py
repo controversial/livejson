@@ -166,7 +166,10 @@ class TestNesting(_DatabaseTest, unittest.TestCase):
 
 
 class TestTransactions(_DatabaseTest, unittest.TestCase):
-    def test_context_manager(self):
+    """ Test using transactions with the context manager. These improve
+    efficiency by only writing to the file once, at the end, instead of
+    writing every change as it is made. """
+    def test_basics(self):
         db = livejson.Database(self.dbpath)
         with db:
             db["a"] = "b"
@@ -174,6 +177,15 @@ class TestTransactions(_DatabaseTest, unittest.TestCase):
             self.assertEqual(db.file_contents, "{}")
         self.assertEqual(db.file_contents, "{\"a\": \"b\"}")
 
+    def test_misc(self):
+        db = livejson.Database(self.dbpath)
+        self.assertEqual(db.is_caching, False)
+        with db:
+            self.assertEqual(db.is_caching, True)
+            db["a"] = "b"
+            # Test that data reflects the cache
+            self.assertEqual(db.data, {"a": "b"})
+        self.assertEqual(db.is_caching, False)
 
 if __name__ == "__main__":
     unittest.main()
