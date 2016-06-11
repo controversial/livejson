@@ -200,5 +200,13 @@ class TestTransactions(_DatabaseTest, unittest.TestCase):
             self.assertEqual(db.data, {"a": "b"})
         self.assertEqual(db.is_caching, False)
 
+    def test_fun_syntax(self):
+        """ This is a fun bit of "syntactic sugar" enabled as a side effect of
+        transactions """
+        with livejson.Database(self.dbpath) as a:
+            a["cats"] = "dogs"
+        with open(self.dbpath, "r") as f:
+            self.assertEqual(f.read(), "{\"cats\": \"dogs\"}")
+
 if __name__ == "__main__":
     unittest.main()

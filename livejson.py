@@ -216,6 +216,7 @@ class _BaseDatabase(_ObjectBase):
 
     def __enter__(self):
         self.cache = {}
+        return self
 
     def __exit__(self, *args):
         # We have to write manually here because __setitem__ is set up to write
