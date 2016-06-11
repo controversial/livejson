@@ -12,7 +12,7 @@ A Python library implementing a `dict`-like object that writes to a file as it i
 - **Flexible**: `livejson` fully supports complex nestings of `list`s and `dict`s, meaning it can represent any valid JSON file.
 - **Compatible**: `livejson` works perfectly on both Python 2 and Python 3.
 - **Lightweight**: `livejson` is a single file with no external dependencies. Just install and go!
-- **Reliable**: no caching is used. Every single time you access a `livejson.Database`, it's read straight from the file. And every time you write to it, the change is instant. No delays, no conflicts.
+- **Reliable**: by default, no caching is used. Every single time you access a `livejson.Database`, it's read straight from the file. And every time you write to it, the change is instant. No delays, no conflicts. However, if efficiency is important, you can use the context manager, which allows interaction with `livejson` through [transactions](https://en.wikipedia.org/wiki/Database_transaction).
 - **100% test covered** Yay 🎉
 
 `livejson` can be used for:
