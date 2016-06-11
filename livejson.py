@@ -160,14 +160,12 @@ class _BaseDatabase(_ObjectBase):
         self._checkType(key)
         data = self.data
         data[key] = value
-        with open(self.path, "w") as f:
-            json.dump(data, f)
+        self.set_data(data)
 
     def __delitem__(self, key):
         data = self.data
         del data[key]
-        with open(self.path, "w") as f:
-            json.dump(data, f)
+        self.set_data(data)
 
     def _updateType(self):
         """ Make sure that the class behaves like the data structure that it
@@ -226,8 +224,7 @@ class ListDatabase(_BaseDatabase, collections.MutableSequence):
     def insert(self, index, value):
         data = self.data
         data.insert(index, value)
-        with open(self.path, "w") as f:
-            json.dump(data, f)
+        self.set_data(data)
 
     def clear_data(self):
         """ Delete everything. Dangerous. """
