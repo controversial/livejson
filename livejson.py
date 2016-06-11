@@ -194,6 +194,12 @@ class _BaseDatabase(_ObjectBase):
         """ Delete the database from the disk completely """
         os.remove(self.path)
 
+    @property
+    def file_contents(self):
+        """ Get the raw file contents of the database """
+        with open(self.path, "r") as f:
+            return f.read()
+
 
 class DictDatabase(_BaseDatabase, collections.MutableMapping):
     """ A class emulating Python's dict that will update a JSON file as it is
