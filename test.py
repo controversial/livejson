@@ -165,5 +165,15 @@ class TestNesting(_DatabaseTest, unittest.TestCase):
             db["data"][0] = "abc"
 
 
+class TestTransactions(_DatabaseTest, unittest.TestCase):
+    def test_context_manager(self):
+        db = livejson.Database(self.dbpath)
+        with db:
+            db["a"] = "b"
+            # Make sure that the write doesn't happen until we exit
+            self.assertEqual(db.file_contents, "{}")
+        self.assertEqual(db.file_contents, "{\"a\": \"b\"}")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -169,7 +169,7 @@ class _BaseDatabase(_ObjectBase):
 
     def _updateType(self):
         """ Make sure that the class behaves like the data structure that it
-        is, so that we don't get a ListDatabase trying to represent a dict"""
+        is, so that we don't get a ListDatabase trying to represent a dict """
         # Do this manually to avoid infinite recursion
         with open(self.path, "r") as f:
             data = json.load(f)
@@ -184,8 +184,11 @@ class _BaseDatabase(_ObjectBase):
     def set_data(self, data):
         """ Overwrite the database with new data. You probably shouldn't do
         this yourself, it's easy to screw up your whole database with this """
-        with open(self.path, "w") as f:
-            json.dump(data, f)
+        if self.is_caching:
+            self.cache = data
+        else:
+            with open(self.path, "w") as f:
+                json.dump(data, f)
         self._updateType()
 
     def remove(self):
@@ -197,6 +200,23 @@ class _BaseDatabase(_ObjectBase):
         """ Get the raw file contents of the database """
         with open(self.path, "r") as f:
             return f.read()
+
+    # Transactions
+
+    @property
+    def is_caching(self):
+        """ Is a transaction underway? """
+        return hasattr(self, "cache")
+
+    def __enter__(self):
+        self.cache = {}
+
+    def __exit__(self, *args):
+        # We have to write manually here because __setitem__ is set up to write
+        # to cache, not to file
+        with open(self.path, "w") as f:
+            json.dump(self.cache, f)
+        del self.cache
 
 
 class DictDatabase(_BaseDatabase, collections.MutableMapping):
