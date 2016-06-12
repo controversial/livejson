@@ -148,33 +148,37 @@ class _BaseDatabase(_ObjectBase):
         _initdb(self.path,
                 "list" if isinstance(self, ListDatabase) else "dict")
 
-    @property
-    def data(self):
-        """ Get a vanilla dict object (fresh from the JSON file) """
-        # Update type in case it's changed
-        self._updateType()
+    def _data(self):
+        """ A simplified version of 'data' to avoid infinite recursion in some
+        cases. Don't use this. """
+        if self.is_caching:
+            return self.cache
         with open(self.path, "r") as f:
             return json.load(f)
+
+    @property
+    def data(self):
+        """ Get a vanilla dict object to represent the database """
+        # Update type in case it's changed
+        self._updateType()
+        # And return
+        return self._data()
 
     def __setitem__(self, key, value):
         self._checkType(key)
         data = self.data
         data[key] = value
-        with open(self.path, "w") as f:
-            json.dump(data, f)
+        self.set_data(data)
 
     def __delitem__(self, key):
         data = self.data
         del data[key]
-        with open(self.path, "w") as f:
-            json.dump(data, f)
+        self.set_data(data)
 
     def _updateType(self):
         """ Make sure that the class behaves like the data structure that it
-        is, so that we don't get a ListDatabase trying to represent a dict"""
-        # Do this manually to avoid infinite recursion
-        with open(self.path, "r") as f:
-            data = json.load(f)
+        is, so that we don't get a ListDatabase trying to represent a dict """
+        data = self._data()
         # Change type if needed
         if isinstance(data, dict) and isinstance(self, ListDatabase):
             self.__class__ = DictDatabase
@@ -186,13 +190,40 @@ class _BaseDatabase(_ObjectBase):
     def set_data(self, data):
         """ Overwrite the database with new data. You probably shouldn't do
         this yourself, it's easy to screw up your whole database with this """
-        with open(self.path, "w") as f:
-            json.dump(data, f)
+        if self.is_caching:
+            self.cache = data
+        else:
+            with open(self.path, "w") as f:
+                json.dump(data, f)
         self._updateType()
 
     def remove(self):
         """ Delete the database from the disk completely """
         os.remove(self.path)
+
+    @property
+    def file_contents(self):
+        """ Get the raw file contents of the database """
+        with open(self.path, "r") as f:
+            return f.read()
+
+    # Grouped writes
+
+    @property
+    def is_caching(self):
+        """ Is a grouped write underway? """
+        return hasattr(self, "cache")
+
+    def __enter__(self):
+        self.cache = {}
+        return self  # This enables using "as"
+
+    def __exit__(self, *args):
+        # We have to write manually here because __setitem__ is set up to write
+        # to cache, not to file
+        with open(self.path, "w") as f:
+            json.dump(self.cache, f)
+        del self.cache
 
 
 class DictDatabase(_BaseDatabase, collections.MutableMapping):
@@ -220,8 +251,7 @@ class ListDatabase(_BaseDatabase, collections.MutableSequence):
     def insert(self, index, value):
         data = self.data
         data.insert(index, value)
-        with open(self.path, "w") as f:
-            json.dump(data, f)
+        self.set_data(data)
 
     def clear_data(self):
         """ Delete everything. Dangerous. """
@@ -266,3 +296,7 @@ class Database(object):
             db = Database(path)
             db.set_data(data)
             return db
+
+
+# Alias
+File = Database

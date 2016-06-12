@@ -59,6 +59,8 @@ class TestDatabase(_DatabaseTest, unittest.TestCase):
         db["a"] = "b"
         # Test 'data' (get a vanilla dict object)
         self.assertEqual(db.data, {"a": "b"})
+        # Test file_contents
+        self.assertEqual(db.file_contents, "{\"a\": \"b\"}")
         # Test __str__ and __repr__
         self.assertEqual(str(db), str(db.data))
         self.assertEqual(repr(db), repr(db.data))
@@ -161,6 +163,57 @@ class TestNesting(_DatabaseTest, unittest.TestCase):
         # Test that storing numeric keys raises an additional error message
         with self.assertRaisesRegexp(TypeError, "Try using a"):
             db["data"][0] = "abc"
+
+
+class TestGroupedWrites(_DatabaseTest, unittest.TestCase):
+    """ Test using "grouped writes" with the context manager. These improve
+    efficiency by only writing to the file once, at the end, instead of
+    writing every change as it is made. """
+    def test_basics(self):
+        db = livejson.Database(self.dbpath)
+        with db:
+            db["a"] = "b"
+            # Make sure that the write doesn't happen until we exit
+            self.assertEqual(db.file_contents, "{}")
+        self.assertEqual(db.file_contents, "{\"a\": \"b\"}")
+
+    def test_lists(self):
+        db = livejson.ListDatabase(self.dbpath)
+        for i in range(10):
+            db.append(i)
+        self.assertEqual(len(db), 10)
+
+    def test_switchclass(self):
+        """ Test the switching of classes in the middle of a grouped write """
+        db = livejson.Database(self.dbpath)
+        with db:
+            self.assertIsInstance(db, livejson.DictDatabase)
+            db.set_data([])
+            self.assertIsInstance(db, livejson.ListDatabase)
+            self.assertEqual(db.file_contents, "{}")
+        self.assertEqual(db.file_contents, "[]")
+
+    def test_misc(self):
+        """ Test miscellaneous other things that seem like they might break
+        with a grouped write """
+        db = livejson.Database(self.dbpath)
+        # Test is_caching, and test that data works with the cache
+        self.assertEqual(db.is_caching, False)
+        with db:
+            self.assertEqual(db.is_caching, True)
+            db["a"] = "b"
+            # Test that data reflects the cache
+            self.assertEqual(db.data, {"a": "b"})
+        self.assertEqual(db.is_caching, False)
+
+    def test_fun_syntax(self):
+        """ This is a fun bit of "syntactic sugar" enabled as a side effect of
+        grouped writes. I also aliased "File" to "Database" to improve
+        readability in some cases. """
+        with livejson.File(self.dbpath) as a:
+            a["cats"] = "dogs"
+        with open(self.dbpath, "r") as f:
+            self.assertEqual(f.read(), "{\"cats\": \"dogs\"}")
 
 
 if __name__ == "__main__":
