@@ -216,7 +216,7 @@ class _BaseDatabase(_ObjectBase):
 
     def __enter__(self):
         self.cache = {}
-        return self
+        return self  # This enables using "as"
 
     def __exit__(self, *args):
         # We have to write manually here because __setitem__ is set up to write
@@ -296,3 +296,7 @@ class Database(object):
             db = Database(path)
             db.set_data(data)
             return db
+
+
+# Alias
+File = Database

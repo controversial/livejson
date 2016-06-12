@@ -208,11 +208,13 @@ class TestGroupedWrites(_DatabaseTest, unittest.TestCase):
 
     def test_fun_syntax(self):
         """ This is a fun bit of "syntactic sugar" enabled as a side effect of
-        grouped writes """
-        with livejson.Database(self.dbpath) as a:
+        grouped writes. I also aliased "File" to "Database" to improve
+        readability in some cases. """
+        with livejson.File(self.dbpath) as a:
             a["cats"] = "dogs"
         with open(self.dbpath, "r") as f:
             self.assertEqual(f.read(), "{\"cats\": \"dogs\"}")
+
 
 if __name__ == "__main__":
     unittest.main()
