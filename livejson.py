@@ -15,7 +15,7 @@ def _initdb(path, data="dict"):
     """ Initialize an empty database """
     data = {} if data.lower() == "dict" else []
     # The database will need to be created if it doesn't exist
-    if not os.path.exists(path):
+    if not os.path.exists(path):  # The file doesn't exist
         # Raise exception if the directory that should contain the file doesn't
         # exist
         dirname = os.path.dirname(path)
@@ -28,7 +28,10 @@ def _initdb(path, data="dict"):
         with open(path, "w") as f:
             json.dump(data, f)
         return True
-    else:
+    elif len(open(path, "r").read()) == 0:  # The file is empty
+        with open(path, "w") as f:
+            json.dump(data, f)
+    else:  # The file exists and contains content
         return False
 
 

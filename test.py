@@ -114,6 +114,20 @@ class TestDatabase(_DatabaseTest, unittest.TestCase):
         with self.assertRaises(ValueError):
             livejson.Database.with_data(self.dbpath, {})
 
+    def test_empty_file(self):
+        """ Test that a Database can be initialized in a completely empty, but
+        existing, file """
+        # Dict databases
+        with open(self.dbpath, "w") as f:
+            f.write("")
+        db = livejson.Database(self.dbpath)
+        self.assertEqual(db.data, {})
+        # List databases
+        with open(self.dbpath, "w") as f:
+            f.write("")
+        db = livejson.ListDatabase(self.dbpath)
+        self.assertEqual(db.data, [])
+
 
 class TestNesting(_DatabaseTest, unittest.TestCase):
     def test_list_nesting(self):
