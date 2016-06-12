@@ -128,6 +128,17 @@ class TestDatabase(_DatabaseTest, unittest.TestCase):
         db = livejson.ListDatabase(self.dbpath)
         self.assertEqual(db.data, [])
 
+    def test_rollback(self):
+        """ Test that data can be restored in the case of an error to prevent
+        corruption (see #3)"""
+        class Test (object):
+            pass
+        db = livejson.Database(self.dbpath)
+        db["a"] = "b"
+        with self.assertRaises(TypeError):
+            db["test"] = Test()
+        self.assertEqual(db.data, {"a": "b"})
+
 
 class TestNesting(_DatabaseTest, unittest.TestCase):
     def test_list_nesting(self):

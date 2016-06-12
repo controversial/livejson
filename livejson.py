@@ -196,8 +196,17 @@ class _BaseDatabase(_ObjectBase):
         if self.is_caching:
             self.cache = data
         else:
+            fcontents = self.file_contents
             with open(self.path, "w") as f:
-                json.dump(data, f)
+                try:
+                    json.dump(data, f)
+                except Exception as e:
+                    # Rollback to prevent data loss
+                    f.seek(0)
+                    f.truncate()
+                    f.write(fcontents)
+                    # And re-raise the exception
+                    raise e
         self._updateType()
 
     def remove(self):
