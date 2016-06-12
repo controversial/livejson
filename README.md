@@ -6,6 +6,8 @@
 
 A Python library implementing a `dict`-like object that writes to a file as it is modified
 
+![Demo gif](http://i.imgur.com/yaXzzjG.gif)
+
 `livejson` is:
 
 - **Easy**: use `livejson` with the same interface as Python `list`s and `dict`s, meaning it can basically be used as a drop-in replacement.
