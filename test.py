@@ -177,6 +177,12 @@ class TestGroupedWrites(_DatabaseTest, unittest.TestCase):
             self.assertEqual(db.file_contents, "{}")
         self.assertEqual(db.file_contents, "{\"a\": \"b\"}")
 
+    def test_lists(self):
+        db = livejson.ListDatabase(self.dbpath)
+        for i in range(10):
+            db.append(i)
+        self.assertEqual(len(db), 10)
+
     def test_switchclass(self):
         """ Test the switching of classes in the middle of a grouped write """
         db = livejson.Database(self.dbpath)
