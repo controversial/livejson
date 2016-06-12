@@ -207,11 +207,11 @@ class _BaseDatabase(_ObjectBase):
         with open(self.path, "r") as f:
             return f.read()
 
-    # Transactions
+    # Grouped writes
 
     @property
     def is_caching(self):
-        """ Is a transaction underway? """
+        """ Is a grouped write underway? """
         return hasattr(self, "cache")
 
     def __enter__(self):

@@ -165,8 +165,8 @@ class TestNesting(_DatabaseTest, unittest.TestCase):
             db["data"][0] = "abc"
 
 
-class TestTransactions(_DatabaseTest, unittest.TestCase):
-    """ Test using transactions with the context manager. These improve
+class TestGroupedWrites(_DatabaseTest, unittest.TestCase):
+    """ Test using "grouped writes" with the context manager. These improve
     efficiency by only writing to the file once, at the end, instead of
     writing every change as it is made. """
     def test_basics(self):
@@ -178,7 +178,7 @@ class TestTransactions(_DatabaseTest, unittest.TestCase):
         self.assertEqual(db.file_contents, "{\"a\": \"b\"}")
 
     def test_switchclass(self):
-        """ Test the switching of classes during a transaction """
+        """ Test the switching of classes in the middle of a grouped write """
         db = livejson.Database(self.dbpath)
         with db:
             self.assertIsInstance(db, livejson.DictDatabase)
@@ -189,7 +189,7 @@ class TestTransactions(_DatabaseTest, unittest.TestCase):
 
     def test_misc(self):
         """ Test miscellaneous other things that seem like they might break
-        with a transaction """
+        with a grouped write """
         db = livejson.Database(self.dbpath)
         # Test is_caching, and test that data works with the cache
         self.assertEqual(db.is_caching, False)
@@ -202,7 +202,7 @@ class TestTransactions(_DatabaseTest, unittest.TestCase):
 
     def test_fun_syntax(self):
         """ This is a fun bit of "syntactic sugar" enabled as a side effect of
-        transactions """
+        grouped writes """
         with livejson.Database(self.dbpath) as a:
             a["cats"] = "dogs"
         with open(self.dbpath, "r") as f:
