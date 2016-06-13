@@ -241,5 +241,22 @@ class TestGroupedWrites(_DatabaseTest, unittest.TestCase):
             self.assertEqual(f.read(), "{\"cats\": \"dogs\"}")
 
 
+class TestAliases(_DatabaseTest, unittest.TestCase):
+    def test_File(self):
+        f = livejson.File(self.dbpath)
+        self.assertTrue(os.path.exists(self.dbpath))
+        self.assertEqual(f.data, {})
+
+    def test_ListFile(self):
+        f = livejson.ListFile(self.dbpath)
+        self.assertTrue(os.path.exists(self.dbpath))
+        self.assertEqual(f.data, [])
+
+    def test_DictFile(self):
+        f = livejson.DictFile(self.dbpath)
+        self.assertTrue(os.path.exists(self.dbpath))
+        self.assertEqual(f.data, {})
+
+
 if __name__ == "__main__":
     unittest.main()
