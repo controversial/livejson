@@ -310,5 +310,7 @@ class Database(object):
             return db
 
 
-# Alias
+# Aliases
 File = Database
+ListFile = ListDatabase
+DictFile = DictDatabase
