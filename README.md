@@ -1,7 +1,7 @@
 ![livejson](http://luke.deentaylor.com/siteassets/livejson-banner-light.png)
 
 [![Build Status](https://travis-ci.org/controversial/livejson.svg?branch=master)](https://travis-ci.org/The-Penultimate-Defenestrator/livejson)
-[![Coverage Status](https://coveralls.io/repos/github/The-Penultimate-Defenestrator/livejson/badge.svg?branch=master)](https://coveralls.io/github/The-Penultimate-Defenestrator/livejson?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/controversial/livejson/badge.svg?branch=master)](https://coveralls.io/github/controversial/livejson?branch=master)
 [![PEP8](https://img.shields.io/badge/PEP8-compliant-brightgreen.svg)](https://www.python.org/dev/peps/pep-0008/)
 
 `livejson` allows you to cleanly manipulate JSON objects as though they were Python `dict`s, with your file transparently updating in the background. It's pure-python with no dependencies, and compatible across Python 2 and Python 3.
