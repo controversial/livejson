@@ -12,5 +12,5 @@ setup(
     license="MIT",
     author="Luke Taylor",
     author_email="luke@deentaylor.com",
-    url="https://github.com/The-Penultimate-Defenestrator/livejson/",
+    url="https://github.com/controversial/livejson/",
 )
