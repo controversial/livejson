@@ -36,27 +36,16 @@ sudo pip3 install livejson
 After installing, you can just `import livejson` from your code!
 
 ## Example usage
-Creating a new database:
+Basic usage:
 ```python
->>> import livejson
->>> my_db = livejson.Database("test.json")
->>> my_db["dogs"] = "cats"
->>> with open("test.json", "r") as f:
-...     print(f.read())
-...
-{"dogs": "cats"}
->>> my_db["dogs"]
-'cats'
+import livejson
+f = livejson.File("test.json")
+f["a"] = "b"
+# That's it, the file has been written to!
 ```
-Reading and modifying an existing database:
+As a context manager:
 ```python
->>> my_db = livejson.Database("test.json")
->>> my_db["dogs"]
-u'cats'
->>> my_db["dogs"] = "fish"
->>> with open("test.json", "r") as f:
-...     print(f.read())
-...
-{"dogs": "fish"}
->>>
+import livejson
+with livejson.File("test.json") as f:
+    f["a"] = "b"
 ```
