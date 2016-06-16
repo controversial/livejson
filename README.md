@@ -1,6 +1,6 @@
 ![livejson](http://luke.deentaylor.com/siteassets/livejson-banner-light.png)
 
-[![Build Status](https://travis-ci.org/controversial/livejson.svg?branch=master)](https://travis-ci.org/The-Penultimate-Defenestrator/livejson)
+[![Build Status](https://travis-ci.org/controversial/livejson.svg?branch=master)](https://travis-ci.org/controversial/livejson)
 [![Coverage Status](https://coveralls.io/repos/github/controversial/livejson/badge.svg?branch=master)](https://coveralls.io/github/controversial/livejson?branch=master)
 [![PEP8](https://img.shields.io/badge/PEP8-compliant-brightgreen.svg)](https://www.python.org/dev/peps/pep-0008/)
 
