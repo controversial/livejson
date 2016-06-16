@@ -244,10 +244,6 @@ class DictDatabase(_BaseDatabase, collections.MutableMapping):
     def __iter__(self):
         return iter(self.data)
 
-    def clear_data(self):
-        """ Delete everything. Dangerous. """
-        self.set_data({})
-
     def _checkType(self, key):
         if not isinstance(key, str):
             raise TypeError("JSON only supports strings for keys, not '{}'. {}"
@@ -265,8 +261,11 @@ class ListDatabase(_BaseDatabase, collections.MutableSequence):
         data.insert(index, value)
         self.set_data(data)
 
-    def clear_data(self):
-        """ Delete everything. Dangerous. """
+    def clear(self):
+        # Under Python 3, this method is already in place. I've implemented it
+        # myself to maximize compatibility with Python 2. Note that the
+        # docstring here is stolen from Python 3.
+        """ L.clear() -> None -- remove all items from L """
         self.set_data([])
 
 

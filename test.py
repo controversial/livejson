@@ -46,8 +46,8 @@ class TestDatabase(_DatabaseTest, unittest.TestCase):
         db.insert(0, "turtles")
         self.assertIsInstance(db.data, list)
         self.assertEqual(db.data, ["turtles", "dogs", "cats", "penguins"])
-        # Test clear_data
-        db.clear_data()
+        # Test clear
+        db.clear()
         self.assertEqual(len(db), 0)
         # Test creating a new ListDatabase automatically when file is an Array
         db2 = livejson.Database(self.dbpath)
@@ -66,9 +66,6 @@ class TestDatabase(_DatabaseTest, unittest.TestCase):
         self.assertEqual(repr(db), repr(db.data))
         # Test __iter__
         self.assertEqual(list(db), list(db.keys()))
-        # Test clear_data
-        db.clear_data()
-        self.assertEqual(len(db.data), 0)
         # Test remove()
         db.remove()
         self.assertFalse(os.path.exists(self.dbpath))
