@@ -227,7 +227,7 @@ class _BaseDatabase(_ObjectBase):
         return hasattr(self, "cache")
 
     def __enter__(self):
-        self.cache = {}
+        self.cache = [] if isinstance(self, ListDatabase) else {}
         return self  # This enables using "as"
 
     def __exit__(self, *args):
