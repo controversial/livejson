@@ -49,3 +49,5 @@ import livejson
 with livejson.File("test.json") as f:
     f["a"] = "b"
 ```
+
+####[Wiki](https://github.com/controversial/livejson/wiki)
