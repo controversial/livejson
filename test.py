@@ -199,6 +199,14 @@ class TestGroupedWrites(_DatabaseTest, unittest.TestCase):
             self.assertEqual(db.file_contents, "{}")
         self.assertEqual(db.file_contents, "{\"a\": \"b\"}")
 
+    def test_with_existing_database(self):
+        """ Test that the with block won't clear data """
+        db = livejson.Database(self.dbpath)
+        db["a"] = "b"
+        with db:
+            db["c"] = "d"
+        self.assertIn("a", db)
+
     def test_lists(self):
         db = livejson.ListDatabase(self.dbpath)
         with db:
