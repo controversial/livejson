@@ -147,8 +147,13 @@ class _BaseFile(_ObjectBase):
     """ Class inherited by DictFile that implements all the required
     methods common between collections.MutableMapping and
     collections.MutableSequence in a way appropriate for JSON file-writing """
-    def __init__(self, path):
+    def __init__(self, path, pretty=False, sort_keys=False):
         self.path = path
+        self.path = path
+        self.pretty = pretty
+        self.sort_keys = sort_keys
+        self.indent = 2  # Default indentation level
+
         _initfile(self.path,
                   "list" if isinstance(self, ListFile) else "dict")
 
@@ -200,7 +205,9 @@ class _BaseFile(_ObjectBase):
             fcontents = self.file_contents
             with open(self.path, "w") as f:
                 try:
-                    json.dump(data, f)
+                    # Write the file. Keep user settings about indentation, etc
+                    indent = self.indent if self.pretty else None
+                    json.dump(data, f, sort_keys=self.sort_keys, indent=indent)
                 except Exception as e:
                     # Rollback to prevent data loss
                     f.seek(0)
@@ -278,11 +285,15 @@ class File(object):
     DictFile based on the contents of your file (DictFile by default).
     """
 
-    def __init__(self, path):
+    def __init__(self, path, pretty=False, sort_keys=True, indent=2):
         # When creating a blank JSON file, it's better to make the top-level an
         # Object ("dict" in Python), rather than an Array ("list" in python),
         # because that's the case for most JSON files.
         self.path = path
+        self.pretty = pretty
+        self.sort_keys = sort_keys
+        self.indent = indent
+
         _initfile(self.path)
 
         with open(self.path, "r") as f:
