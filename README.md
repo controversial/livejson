@@ -4,7 +4,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/controversial/livejson/badge.svg?branch=master)](https://coveralls.io/github/controversial/livejson?branch=master)
 [![PEP8](https://img.shields.io/badge/PEP8-compliant-brightgreen.svg)](https://www.python.org/dev/peps/pep-0008/)
 
-`livejson` allows you to cleanly manipulate JSON objects as though they were Python `dict`s, with your file transparently updating in the background. It's pure-python with no dependencies, and compatible across Python 2 and Python 3.
+`livejson` allows you to cleanly manipulate JSON objects as though they were Python `dict`s, with your file transparently updating in the background. It's **pure-python with no dependencies**, and compatible across Python 2 and Python 3.
 
 ![Demo gif](http://i.imgur.com/yaXzzjG.gif)
 
