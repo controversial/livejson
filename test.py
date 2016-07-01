@@ -138,6 +138,26 @@ class TestFile(_BaseTest, unittest.TestCase):
             f["test"] = Test()
         self.assertEqual(f.data, {"a": "b"})
 
+    def test_json_formatting(self):
+        """ Test the extra JSON formatting options """
+        # Test pretty formatting
+        f = livejson.File(self.path, pretty=True)
+        f["a"] = "b"
+        self.assertEqual(f.file_contents, '{\n  "a": "b"\n}')
+        f.indent = 4
+        f.set_data(f.data)  # Force an update
+        self.assertEqual(f.file_contents, '{\n    "a": "b"\n}')
+
+        # Test sorting of keys
+        f["b"] = "c"
+        f["d"] = "e"
+        f["c"] = "d"
+        self.assertTrue(f.file_contents.find("a") <
+                        f.file_contents.find("b") <
+                        f.file_contents.find("c") <
+                        f.file_contents.find("d")
+                        )
+
 
 class TestNesting(_BaseTest, unittest.TestCase):
     def test_list_nesting(self):
