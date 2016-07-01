@@ -150,7 +150,7 @@ class _BaseFile(_ObjectBase):
     def __init__(self, path):
         self.path = path
         _initfile(self.path,
-                "list" if isinstance(self, ListFile) else "dict")
+                  "list" if isinstance(self, ListFile) else "dict")
 
     def _data(self):
         """ A simplified version of 'data' to avoid infinite recursion in some
