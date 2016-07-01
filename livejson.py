@@ -11,20 +11,20 @@ import json
 # MISC HELPERS
 
 
-def _initdb(path, data="dict"):
-    """ Initialize an empty database """
+def _initfile(path, data="dict"):
+    """ Initialize an empty file """
     data = {} if data.lower() == "dict" else []
-    # The database will need to be created if it doesn't exist
+    # The file will need to be created if it doesn't exist
     if not os.path.exists(path):  # The file doesn't exist
         # Raise exception if the directory that should contain the file doesn't
         # exist
         dirname = os.path.dirname(path)
         if dirname and not os.path.exists(dirname):
             raise IOError(
-                ("Could not initialize empty database in non-existant "
+                ("Could not initialize empty JSON file in non-existant "
                  "directory '{}'").format(os.path.dirname(path))
             )
-        # Write an empty database there
+        # Write an empty file there
         with open(path, "w") as f:
             json.dump(data, f)
         return True
@@ -43,11 +43,12 @@ class _ObjectBase(object):
 
         # Nesting
         if isinstance(out, (list, dict)):
-            # If it's the top level database, we can use [] for the path
+            # If it's the top level, we can use [] for the path
             pathInData = self.pathInData if hasattr(self, "pathInData") else []
             newPathInData = pathInData + [key]
-            # If it's the top level database, use self for top level database
-            toplevel = self.basedb if hasattr(self, "basedb") else self
+            # The top level, i.e. the File class, not a nested class. If we're
+            # already the top level, just use self.
+            toplevel = self.base if hasattr(self, "base") else self
             nestClass = _NestedList if isinstance(out, list) else _NestedDict
             return nestClass(toplevel, newPathInData)
         # Not a list or a dict, don't worry about it
@@ -75,17 +76,17 @@ class _ObjectBase(object):
 
 class _NestedBase(_ObjectBase):
     """ Inherited by _NestedDict and _NestedList, implements methods common
-    between them. Takes arguments 'db' which specifies the parent database, and
-    'pathToThis' which specifies where in the database this object exists (as a
-    list)."""
-    def __init__(self, db, pathToThis):
+    between them. Takes arguments 'fileobj' which specifies the parent File
+    object, and 'pathToThis' which specifies where in the JSON file this object
+    exists (as a list). """
+    def __init__(self, fileobj, pathToThis):
         self.pathInData = pathToThis
-        self.basedb = db
+        self.base = fileobj
 
     @property
     def data(self):
-        # Start with the top-level database data
-        d = self.basedb.data
+        # Start with the top-level data
+        d = self.base.data
         # Navigate through the object to find where self.pathInData points
         for i in self.pathInData:
             d = d[i]
@@ -95,7 +96,7 @@ class _NestedBase(_ObjectBase):
     def __setitem__(self, key, value):
         self._checkType(key)
         # Store the whole data
-        data = self.basedb.data
+        data = self.base.data
         # Iterate through and find the right part of the data
         d = data
         for i in self.pathInData:
@@ -103,17 +104,17 @@ class _NestedBase(_ObjectBase):
         # It is passed by reference, so modifying the found object modifies
         # the whole thing
         d[key] = value
-        # Update the whole database with the modification
-        self.basedb.set_data(data)
+        # Update the whole file with the modification
+        self.base.set_data(data)
 
     def __delitem__(self, key):
         # See __setitem__ for details on how this works
-        data = self.basedb.data
+        data = self.base.data
         d = data
         for i in self.pathInData:
             d = d[i]
         del d[key]
-        self.basedb.set_data(data)
+        self.base.set_data(data)
 
 
 class _NestedDict(_NestedBase, collections.MutableMapping):
@@ -131,25 +132,25 @@ class _NestedDict(_NestedBase, collections.MutableMapping):
 class _NestedList(_NestedBase, collections.MutableSequence):
     def insert(self, index, value):
         # See _NestedBase.__setitem__ for details on how this works
-        data = self.basedb.data
+        data = self.base.data
         d = data
         for i in self.pathInData:
             d = d[i]
         d.insert(index, value)
-        self.basedb.set_data(data)
+        self.base.set_data(data)
 
 
 # THE MAIN CLASSES
 
 
-class _BaseDatabase(_ObjectBase):
-    """ Class inherited by DictDatabase that implements all the required
+class _BaseFile(_ObjectBase):
+    """ Class inherited by DictFile that implements all the required
     methods common between collections.MutableMapping and
     collections.MutableSequence in a way appropriate for JSON file-writing """
     def __init__(self, path):
         self.path = path
-        _initdb(self.path,
-                "list" if isinstance(self, ListDatabase) else "dict")
+        _initfile(self.path,
+                "list" if isinstance(self, ListFile) else "dict")
 
     def _data(self):
         """ A simplified version of 'data' to avoid infinite recursion in some
@@ -161,7 +162,7 @@ class _BaseDatabase(_ObjectBase):
 
     @property
     def data(self):
-        """ Get a vanilla dict object to represent the database """
+        """ Get a vanilla dict object to represent the file """
         # Update type in case it's changed
         self._updateType()
         # And return
@@ -180,19 +181,19 @@ class _BaseDatabase(_ObjectBase):
 
     def _updateType(self):
         """ Make sure that the class behaves like the data structure that it
-        is, so that we don't get a ListDatabase trying to represent a dict """
+        is, so that we don't get a ListFile trying to represent a dict """
         data = self._data()
         # Change type if needed
-        if isinstance(data, dict) and isinstance(self, ListDatabase):
-            self.__class__ = DictDatabase
-        elif isinstance(data, list) and isinstance(self, DictDatabase):
-            self.__class__ = ListDatabase
+        if isinstance(data, dict) and isinstance(self, ListFile):
+            self.__class__ = DictFile
+        elif isinstance(data, list) and isinstance(self, DictFile):
+            self.__class__ = ListFile
 
     # Bonus features!
 
     def set_data(self, data):
-        """ Overwrite the database with new data. You probably shouldn't do
-        this yourself, it's easy to screw up your whole database with this """
+        """ Overwrite the file with new data. You probably shouldn't do
+        this yourself, it's easy to screw up your whole file with this """
         if self.is_caching:
             self.cache = data
         else:
@@ -210,12 +211,12 @@ class _BaseDatabase(_ObjectBase):
         self._updateType()
 
     def remove(self):
-        """ Delete the database from the disk completely """
+        """ Delete the file from the disk completely """
         os.remove(self.path)
 
     @property
     def file_contents(self):
-        """ Get the raw file contents of the database """
+        """ Get the raw file contents of the file """
         with open(self.path, "r") as f:
             return f.read()
 
@@ -238,7 +239,7 @@ class _BaseDatabase(_ObjectBase):
         del self.cache
 
 
-class DictDatabase(_BaseDatabase, collections.MutableMapping):
+class DictFile(_BaseFile, collections.MutableMapping):
     """ A class emulating Python's dict that will update a JSON file as it is
     modified """
     def __iter__(self):
@@ -252,10 +253,10 @@ class DictDatabase(_BaseDatabase, collections.MutableMapping):
                                     isinstance(key, int) else ""))
 
 
-class ListDatabase(_BaseDatabase, collections.MutableSequence):
+class ListFile(_BaseFile, collections.MutableSequence):
     """ A class emulating a Python list that will update a JSON file as it is
-    modified. Use this class directly when creating a new database if you want
-    the base object to be an array. """
+    modified. Use this class directly when creating a new file if you want the
+    base object to be an array. """
     def insert(self, index, value):
         data = self.data
         data.insert(index, value)
@@ -269,47 +270,47 @@ class ListDatabase(_BaseDatabase, collections.MutableSequence):
         self.set_data([])
 
 
-class Database(object):
+class File(object):
     """ The main interface of livejson. Emulates a list or a dict, updating a
     JSON file in real-time as it is modified.
 
-    This will be automatically replaced with either a ListDatabase or as
-    DictDatabase based on the contents of your file (DictDatabase by default).
+    This will be automatically replaced with either a ListFile or as
+    DictFile based on the contents of your file (DictFile by default).
     """
 
     def __init__(self, path):
-        # When creating a blank database, it's better to make the top-level an
+        # When creating a blank JSON file, it's better to make the top-level an
         # Object ("dict" in Python), rather than an Array ("list" in python),
         # because that's the case for most JSON files.
         self.path = path
-        _initdb(self.path)
+        _initfile(self.path)
 
         with open(self.path, "r") as f:
             data = json.load(f)
         if isinstance(data, dict):
-            self.__class__ = DictDatabase
+            self.__class__ = DictFile
         elif isinstance(data, list):
-            self.__class__ = ListDatabase
+            self.__class__ = ListFile
 
     @staticmethod
     def with_data(path, data):
-        """ Initialize a new database that starts out with some data. Pass data
+        """ Initialize a new file that starts out with some data. Pass data
         as a list, dict, or JSON string. """
         # De-jsonize data if necessary
         if isinstance(data, str):
             data = json.loads(data)
 
-        # Make sure this is really a new database
+        # Make sure this is really a new file
         if os.path.exists(path):
-            raise ValueError("Database exists, not overwriting data. Use "
+            raise ValueError("File exists, not overwriting data. Use "
                              "'set_data' if you really want to do this.")
         else:
-            db = Database(path)
-            db.set_data(data)
-            return db
+            f = File(path)
+            f.set_data(data)
+            return f
 
 
-# Aliases
-File = Database
-ListFile = ListDatabase
-DictFile = DictDatabase
+# Aliases for backwards-compatibility
+Database = File
+ListDatabase = ListFile
+DictDatabase = DictFile
