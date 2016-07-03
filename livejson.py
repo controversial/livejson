@@ -1,7 +1,6 @@
-"""
-A module implementing a pseudo-dict class which is bound to a JSON file. As you
-change the contents of the dict, the JSON file will be updated in real-time.
-"""
+"""A module implementing a pseudo-dict class which is bound to a JSON file. As
+you change the contents of the dict, the JSON file will be updated in
+real-time.s"""
 
 import collections
 import os
@@ -12,7 +11,7 @@ import json
 
 
 def _initfile(path, data="dict"):
-    """ Initialize an empty file """
+    """Initialize an empty JSON file."""
     data = {} if data.lower() == "dict" else []
     # The file will need to be created if it doesn't exist
     if not os.path.exists(path):  # The file doesn't exist
@@ -36,8 +35,9 @@ def _initfile(path, data="dict"):
 
 
 class _ObjectBase(object):
-    """ Class inherited by most stuff. Implements the lowest common denominator
-    for most stuff """
+    """Class inherited by most things. Implements the lowest common denominator
+    for all emulating classes.
+    """
     def __getitem__(self, key):
         out = self.data[key]
 
@@ -68,17 +68,18 @@ class _ObjectBase(object):
 
     # MISC
     def _checkType(self, key):
-        """ Make sure the type of a key is appropriate """
+        """Make sure the type of a key is appropriate."""
         pass
 
 # NESTING CLASSES
 
 
 class _NestedBase(_ObjectBase):
-    """ Inherited by _NestedDict and _NestedList, implements methods common
+    """Inherited by _NestedDict and _NestedList, implements methods common
     between them. Takes arguments 'fileobj' which specifies the parent File
     object, and 'pathToThis' which specifies where in the JSON file this object
-    exists (as a list). """
+    exists (as a list).
+    """
     def __init__(self, fileobj, pathToThis):
         self.pathInData = pathToThis
         self.base = fileobj
@@ -118,6 +119,18 @@ class _NestedBase(_ObjectBase):
 
 
 class _NestedDict(_NestedBase, collections.MutableMapping):
+    """A pseudo-dict class used instead of a vanilla dict inside a
+    livejson.File. This "watches" for changes made to its content, then tells
+    the base livejson.File instance to update itself so that the file always
+    reflects the changes you've made.
+
+    This class is what allows for nested calls like this
+
+    >>> f = livejson.File("myfile.json")
+    >>> f["a"]["b"]["c"] = "d"
+
+    to update the file.
+    """
     def __iter__(self):
         return iter(self.data)
 
@@ -130,6 +143,18 @@ class _NestedDict(_NestedBase, collections.MutableMapping):
 
 
 class _NestedList(_NestedBase, collections.MutableSequence):
+    """A pseudo-list class used instead of a vanilla list inside a
+    livejson.File. This "watches" for changes made to its content, then tells
+    the base livejson.File instance to update itself so that the file always
+    reflects the changes you've made.
+
+    This class is what allows for nested calls involving lists like this:
+
+    >>> f = livejson.File("myfile.json")
+    >>> f["a"].append("foo")
+
+    to update the file.
+    """
     def insert(self, index, value):
         # See _NestedBase.__setitem__ for details on how this works
         data = self.base.data
@@ -144,9 +169,9 @@ class _NestedList(_NestedBase, collections.MutableSequence):
 
 
 class _BaseFile(_ObjectBase):
-    """ Class inherited by DictFile that implements all the required
-    methods common between collections.MutableMapping and
-    collections.MutableSequence in a way appropriate for JSON file-writing """
+    """Class inherited by DictFile and ListFile; this implements all the
+    required methods common between collections.MutableMapping and
+    collections.MutableSequence."""
     def __init__(self, path, pretty=False, sort_keys=False):
         self.path = path
         self.path = path
@@ -158,8 +183,8 @@ class _BaseFile(_ObjectBase):
                   "list" if isinstance(self, ListFile) else "dict")
 
     def _data(self):
-        """ A simplified version of 'data' to avoid infinite recursion in some
-        cases. Don't use this. """
+        """A simplified version of 'data' to avoid infinite recursion in some
+        cases. Don't use this."""
         if self.is_caching:
             return self.cache
         with open(self.path, "r") as f:
@@ -167,7 +192,7 @@ class _BaseFile(_ObjectBase):
 
     @property
     def data(self):
-        """ Get a vanilla dict object to represent the file """
+        """Get a vanilla dict object to represent the file."""
         # Update type in case it's changed
         self._updateType()
         # And return
@@ -185,8 +210,8 @@ class _BaseFile(_ObjectBase):
         self.set_data(data)
 
     def _updateType(self):
-        """ Make sure that the class behaves like the data structure that it
-        is, so that we don't get a ListFile trying to represent a dict """
+        """Make sure that the class behaves like the data structure that it
+        is, so that we don't get a ListFile trying to represent a dict."""
         data = self._data()
         # Change type if needed
         if isinstance(data, dict) and isinstance(self, ListFile):
@@ -197,8 +222,8 @@ class _BaseFile(_ObjectBase):
     # Bonus features!
 
     def set_data(self, data):
-        """ Overwrite the file with new data. You probably shouldn't do
-        this yourself, it's easy to screw up your whole file with this """
+        """Overwrite the file with new data. You probably shouldn't do
+        this yourself, it's easy to screw up your whole file with this."""
         if self.is_caching:
             self.cache = data
         else:
@@ -218,12 +243,12 @@ class _BaseFile(_ObjectBase):
         self._updateType()
 
     def remove(self):
-        """ Delete the file from the disk completely """
+        """Delete the file from the disk completely."""
         os.remove(self.path)
 
     @property
     def file_contents(self):
-        """ Get the raw file contents of the file """
+        """Get the raw file contents of the file."""
         with open(self.path, "r") as f:
             return f.read()
 
@@ -231,7 +256,9 @@ class _BaseFile(_ObjectBase):
 
     @property
     def is_caching(self):
-        """ Is a grouped write underway? """
+        """Returns a boolean value describing whether a grouped write is
+        underway.
+        """
         return hasattr(self, "cache")
 
     def __enter__(self):
@@ -247,8 +274,9 @@ class _BaseFile(_ObjectBase):
 
 
 class DictFile(_BaseFile, collections.MutableMapping):
-    """ A class emulating Python's dict that will update a JSON file as it is
-    modified """
+    """A class emulating Python's dict that will update a JSON file as it is
+    modified.
+    """
     def __iter__(self):
         return iter(self.data)
 
@@ -261,9 +289,10 @@ class DictFile(_BaseFile, collections.MutableMapping):
 
 
 class ListFile(_BaseFile, collections.MutableSequence):
-    """ A class emulating a Python list that will update a JSON file as it is
+    """A class emulating a Python list that will update a JSON file as it is
     modified. Use this class directly when creating a new file if you want the
-    base object to be an array. """
+    base object to be an array.
+    """
     def insert(self, index, value):
         data = self.data
         data.insert(index, value)
@@ -273,16 +302,17 @@ class ListFile(_BaseFile, collections.MutableSequence):
         # Under Python 3, this method is already in place. I've implemented it
         # myself to maximize compatibility with Python 2. Note that the
         # docstring here is stolen from Python 3.
-        """ L.clear() -> None -- remove all items from L """
+        """L.clear() -> None -- remove all items from L."""
         self.set_data([])
 
 
 class File(object):
-    """ The main interface of livejson. Emulates a list or a dict, updating a
+    """The main interface of livejson. Emulates a list or a dict, updating a
     JSON file in real-time as it is modified.
 
     This will be automatically replaced with either a ListFile or as
-    DictFile based on the contents of your file (DictFile by default).
+    DictFile based on the contents of your file (a DictFile is the default when
+    creating a new file).
     """
 
     def __init__(self, path, pretty=False, sort_keys=True, indent=2):
@@ -305,8 +335,9 @@ class File(object):
 
     @staticmethod
     def with_data(path, data):
-        """ Initialize a new file that starts out with some data. Pass data
-        as a list, dict, or JSON string. """
+        """Initialize a new file that starts out with some data. Pass data
+        as a list, dict, or JSON string.
+        """
         # De-jsonize data if necessary
         if isinstance(data, str):
             data = json.loads(data)
