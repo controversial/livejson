@@ -1,6 +1,8 @@
-"""A module implementing a pseudo-dict class which is bound to a JSON file. As
-you change the contents of the dict, the JSON file will be updated in
-real-time.s"""
+"""A module implementing a pseudo-dict class which is bound to a JSON file.
+
+As you change the contents of the dict, the JSON file will be updated in
+real-time. Magic.
+"""
 
 import collections
 import os
@@ -35,8 +37,9 @@ def _initfile(path, data="dict"):
 
 
 class _ObjectBase(object):
-    """Class inherited by most things. Implements the lowest common denominator
-    for all emulating classes.
+    """Class inherited by most things.
+
+    Implements the lowest common denominator for all emulating classes.
     """
     def __getitem__(self, key):
         out = self.data[key]
@@ -119,8 +122,9 @@ class _NestedBase(_ObjectBase):
 
 
 class _NestedDict(_NestedBase, collections.MutableMapping):
-    """A pseudo-dict class used instead of a vanilla dict inside a
-    livejson.File. This "watches" for changes made to its content, then tells
+    """A pseudo-dict class to replace vanilla dicts inside a livejson.File.
+
+    This "watches" for changes made to its content, then tells
     the base livejson.File instance to update itself so that the file always
     reflects the changes you've made.
 
@@ -143,8 +147,9 @@ class _NestedDict(_NestedBase, collections.MutableMapping):
 
 
 class _NestedList(_NestedBase, collections.MutableSequence):
-    """A pseudo-list class used instead of a vanilla list inside a
-    livejson.File. This "watches" for changes made to its content, then tells
+    """A pseudo-list class to replace vanilla lists inside a livejson.File.
+
+    This "watches" for changes made to its content, then tells
     the base livejson.File instance to update itself so that the file always
     reflects the changes you've made.
 
@@ -169,9 +174,10 @@ class _NestedList(_NestedBase, collections.MutableSequence):
 
 
 class _BaseFile(_ObjectBase):
-    """Class inherited by DictFile and ListFile; this implements all the
-    required methods common between collections.MutableMapping and
-    collections.MutableSequence."""
+    """Class inherited by DictFile and ListFile.
+
+    This implements all the required methods common between
+    collections.MutableMapping and collections.MutableSequence."""
     def __init__(self, path, pretty=False, sort_keys=False):
         self.path = path
         self.path = path
@@ -183,8 +189,10 @@ class _BaseFile(_ObjectBase):
                   "list" if isinstance(self, ListFile) else "dict")
 
     def _data(self):
-        """A simplified version of 'data' to avoid infinite recursion in some
-        cases. Don't use this."""
+        """A simpler version of data to avoid infinite recursion in some cases.
+
+        Don't use this.
+        """
         if self.is_caching:
             return self.cache
         with open(self.path, "r") as f:
