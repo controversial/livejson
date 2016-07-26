@@ -1,3 +1,5 @@
+# MAKES .data ATTRIBUTE SETTABLE, DEPRECATES .set_data
+
 """A module implementing a pseudo-dict class which is bound to a JSON file.
 
 As you change the contents of the dict, the JSON file will be updated in
@@ -7,6 +9,10 @@ real-time. Magic.
 import collections
 import os
 import json
+import warnings
+
+
+warnings.filterwarnings("once", category=DeprecationWarning)
 
 
 # MISC HELPERS
@@ -74,6 +80,7 @@ class _ObjectBase(object):
         """Make sure the type of a key is appropriate."""
         pass
 
+
 # NESTING CLASSES
 
 
@@ -109,7 +116,7 @@ class _NestedBase(_ObjectBase):
         # the whole thing
         d[key] = value
         # Update the whole file with the modification
-        self.base.set_data(data)
+        self.base.data = data
 
     def __delitem__(self, key):
         # See __setitem__ for details on how this works
@@ -118,7 +125,7 @@ class _NestedBase(_ObjectBase):
         for i in self.pathInData:
             d = d[i]
         del d[key]
-        self.base.set_data(data)
+        self.base.data = data
 
 
 class _NestedDict(_NestedBase, collections.MutableMapping):
@@ -167,10 +174,10 @@ class _NestedList(_NestedBase, collections.MutableSequence):
         for i in self.pathInData:
             d = d[i]
         d.insert(index, value)
-        self.base.set_data(data)
+        self.base.data = data
 
 
-# THE MAIN CLASSES
+# THE MAIN INTERFACE
 
 
 class _BaseFile(_ObjectBase):
@@ -179,7 +186,6 @@ class _BaseFile(_ObjectBase):
     This implements all the required methods common between
     collections.MutableMapping and collections.MutableSequence."""
     def __init__(self, path, pretty=False, sort_keys=False):
-        self.path = path
         self.path = path
         self.pretty = pretty
         self.sort_keys = sort_keys
@@ -206,30 +212,8 @@ class _BaseFile(_ObjectBase):
         # And return
         return self._data()
 
-    def __setitem__(self, key, value):
-        self._checkType(key)
-        data = self.data
-        data[key] = value
-        self.set_data(data)
-
-    def __delitem__(self, key):
-        data = self.data
-        del data[key]
-        self.set_data(data)
-
-    def _updateType(self):
-        """Make sure that the class behaves like the data structure that it
-        is, so that we don't get a ListFile trying to represent a dict."""
-        data = self._data()
-        # Change type if needed
-        if isinstance(data, dict) and isinstance(self, ListFile):
-            self.__class__ = DictFile
-        elif isinstance(data, list) and isinstance(self, DictFile):
-            self.__class__ = ListFile
-
-    # Bonus features!
-
-    def set_data(self, data):
+    @data.setter
+    def data(self, data):
         """Overwrite the file with new data. You probably shouldn't do
         this yourself, it's easy to screw up your whole file with this."""
         if self.is_caching:
@@ -249,6 +233,38 @@ class _BaseFile(_ObjectBase):
                     # And re-raise the exception
                     raise e
         self._updateType()
+
+    def __setitem__(self, key, value):
+        self._checkType(key)
+        data = self.data
+        data[key] = value
+        self.data = data
+
+    def __delitem__(self, key):
+        data = self.data
+        del data[key]
+        self.data = data
+
+    def _updateType(self):
+        """Make sure that the class behaves like the data structure that it
+        is, so that we don't get a ListFile trying to represent a dict."""
+        data = self._data()
+        # Change type if needed
+        if isinstance(data, dict) and isinstance(self, ListFile):
+            self.__class__ = DictFile
+        elif isinstance(data, list) and isinstance(self, DictFile):
+            self.__class__ = ListFile
+
+    # Bonus features!
+
+    def set_data(self, data):
+        """Equivalent to setting the "data" attribute. Exists for backwards
+        compatibility."""
+        warnings.warn(
+            "set_data is deprecated; please set .data instead.",
+            DeprecationWarning
+        )
+        self.data = data
 
     def remove(self):
         """Delete the file from the disk completely."""
@@ -304,14 +320,14 @@ class ListFile(_BaseFile, collections.MutableSequence):
     def insert(self, index, value):
         data = self.data
         data.insert(index, value)
-        self.set_data(data)
+        self.data = data
 
     def clear(self):
         # Under Python 3, this method is already in place. I've implemented it
         # myself to maximize compatibility with Python 2. Note that the
         # docstring here is stolen from Python 3.
         """L.clear() -> None -- remove all items from L."""
-        self.set_data([])
+        self.data = []
 
 
 class File(object):
@@ -352,11 +368,13 @@ class File(object):
 
         # Make sure this is really a new file
         if os.path.exists(path):
-            raise ValueError("File exists, not overwriting data. Use "
-                             "'set_data' if you really want to do this.")
+            raise ValueError("File exists, not overwriting data. Set the "
+                             "'data' attribute on a normally-initialized "
+                             "'livejson.File' instance if you really "
+                             "want to do this.")
         else:
             f = File(path)
-            f.set_data(data)
+            f.data = data
             return f
 
 
