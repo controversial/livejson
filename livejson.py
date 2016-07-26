@@ -1,5 +1,3 @@
-# MAKES .data ATTRIBUTE SETTABLE, DEPRECATES .set_data
-
 """A module implementing a pseudo-dict class which is bound to a JSON file.
 
 As you change the contents of the dict, the JSON file will be updated in
@@ -35,7 +33,7 @@ def _initfile(path, data="dict"):
         with open(path, "w") as f:
             json.dump(data, f)
         return True
-    elif len(open(path, "r").read()) == 0:  # The file is empty
+    elif os.path.getsize(path) == 0:  # The file is empty
         with open(path, "w") as f:
             json.dump(data, f)
     else:  # The file exists and contains content
