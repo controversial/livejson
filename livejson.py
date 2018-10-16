@@ -291,7 +291,9 @@ class _BaseFile(_ObjectBase):
         # We have to write manually here because __setitem__ is set up to write
         # to cache, not to file
         with open(self.path, "w") as f:
-            json.dump(self.cache, f)
+            # Write the file. Keep user settings about indentation, etc
+            indent = self.indent if self.pretty else None
+            json.dump(self.cache, f, sort_keys=self.sort_keys, indent=indent)
         del self.cache
 
 
