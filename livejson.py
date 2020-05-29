@@ -4,11 +4,14 @@ As you change the contents of the dict, the JSON file will be updated in
 real-time. Magic.
 """
 
-import collections
 import os
 import json
 import warnings
 
+from collections import (
+    MutableMapping,
+    MutableSequence,
+)
 
 warnings.filterwarnings("once", category=DeprecationWarning)
 
@@ -126,7 +129,7 @@ class _NestedBase(_ObjectBase):
         self.base.data = data
 
 
-class _NestedDict(_NestedBase, collections.MutableMapping):
+class _NestedDict(_NestedBase, MutableMapping):
     """A pseudo-dict class to replace vanilla dicts inside a livejson.File.
 
     This "watches" for changes made to its content, then tells
@@ -151,7 +154,7 @@ class _NestedDict(_NestedBase, collections.MutableMapping):
                                     isinstance(key, int) else ""))
 
 
-class _NestedList(_NestedBase, collections.MutableSequence):
+class _NestedList(_NestedBase, MutableSequence):
     """A pseudo-list class to replace vanilla lists inside a livejson.File.
 
     This "watches" for changes made to its content, then tells
@@ -182,7 +185,7 @@ class _BaseFile(_ObjectBase):
     """Class inherited by DictFile and ListFile.
 
     This implements all the required methods common between
-    collections.MutableMapping and collections.MutableSequence."""
+    MutableMapping and MutableSequence."""
     def __init__(self, path, pretty=False, sort_keys=False):
         self.path = path
         self.pretty = pretty
@@ -297,7 +300,7 @@ class _BaseFile(_ObjectBase):
         del self.cache
 
 
-class DictFile(_BaseFile, collections.MutableMapping):
+class DictFile(_BaseFile, MutableMapping):
     """A class emulating Python's dict that will update a JSON file as it is
     modified.
     """
@@ -312,7 +315,7 @@ class DictFile(_BaseFile, collections.MutableMapping):
                                     isinstance(key, int) else ""))
 
 
-class ListFile(_BaseFile, collections.MutableSequence):
+class ListFile(_BaseFile, MutableSequence):
     """A class emulating a Python list that will update a JSON file as it is
     modified. Use this class directly when creating a new file if you want the
     base object to be an array.
@@ -358,7 +361,7 @@ class File(object):
             self.__class__ = ListFile
 
     @staticmethod
-    def with_data(path, data):
+    def with_data(path, data, *args, **kwargs):
         """Initialize a new file that starts out with some data. Pass data
         as a list, dict, or JSON string.
         """
@@ -373,7 +376,7 @@ class File(object):
                              "'livejson.File' instance if you really "
                              "want to do this.")
         else:
-            f = File(path)
+            f = File(path, *args, **kwargs)
             f.data = data
             return f
 
