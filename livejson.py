@@ -361,7 +361,7 @@ class File(object):
             self.__class__ = ListFile
 
     @staticmethod
-    def with_data(path, data):
+    def with_data(path, data, *args, **kwargs):
         """Initialize a new file that starts out with some data. Pass data
         as a list, dict, or JSON string.
         """
@@ -376,7 +376,7 @@ class File(object):
                              "'livejson.File' instance if you really "
                              "want to do this.")
         else:
-            f = File(path)
+            f = File(path, *args, **kwargs)
             f.data = data
             return f
 
