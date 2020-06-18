@@ -1,4 +1,4 @@
-![livejson](http://luke.deentaylor.com/siteassets/livejson-banner-light.png)
+<h1 align="center">livejson</h1>
 
 [![Build Status](https://travis-ci.org/controversial/livejson.svg?branch=master)](https://travis-ci.org/controversial/livejson)
 [![Coverage Status](https://coveralls.io/repos/github/controversial/livejson/badge.svg?branch=master)](https://coveralls.io/github/controversial/livejson?branch=master)
