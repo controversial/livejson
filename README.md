@@ -1,12 +1,25 @@
 <h1 align="center">livejson</h1>
 
-[![Build Status](https://travis-ci.org/controversial/livejson.svg?branch=master)](https://travis-ci.org/controversial/livejson)
-[![Coverage Status](https://coveralls.io/repos/github/controversial/livejson/badge.svg?branch=master)](https://coveralls.io/github/controversial/livejson?branch=master)
-[![PEP8](https://img.shields.io/badge/PEP8-compliant-brightgreen.svg)](https://www.python.org/dev/peps/pep-0008/)
+<p align="center">
+    <a href="https://travis-ci.org/controversial/livejson" align="center">
+        <img alt="Build Status" src="https://travis-ci.org/controversial/livejson.svg?branch=master">
+    </a>
+    <a href="https://coveralls.io/github/controversial/livejson?branch=master" align="center">
+        <img alt="Coverage Status" src="https://coveralls.io/repos/github/controversial/livejson/badge.svg?branch=master">
+    </a>
+    <a href="https://www.python.org/dev/peps/pep-0008/" align="center">
+        <img alt="PEP8" src="https://img.shields.io/badge/PEP8-compliant-brightgreen.svg">
+    </a>
+</p>
+
+<p align="center">An interface to transparently bind Python objects to JSON files, so that all changes made to the object are reflected in the JSON file</p>
+
+---
+
 
 `livejson` allows you to cleanly manipulate JSON objects as though they were Python `dict`s, with your file transparently updating in the background. It's **pure-python with no dependencies**, and compatible across Python 2 and Python 3.
 
-![Demo gif](http://i.imgur.com/yaXzzjG.gif)
+![Demo gif](https://i.imgur.com/yaXzzjG.gif)
 
 `livejson` is:
 
