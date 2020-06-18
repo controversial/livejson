@@ -8,10 +8,18 @@ import os
 import json
 import warnings
 
-from collections import (
-    MutableMapping,
-    MutableSequence,
-)
+# Import from collections.abc for Python 3.x but incase of ImportError
+# from Python 2.x, fall back on importing from collections.
+try:
+    from collections.abc import (
+        MutableMapping,
+        MutableSequence,
+    )
+except ImportError: 
+    from collections import (
+        MutableMapping,
+        MutableSequence,
+    )
 
 warnings.filterwarnings("once", category=DeprecationWarning)
 
@@ -385,3 +393,4 @@ class File(object):
 Database = File
 ListDatabase = ListFile
 DictDatabase = DictFile
+
