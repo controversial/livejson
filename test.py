@@ -24,7 +24,7 @@ class TestFile(_BaseTest, unittest.TestCase):
         f = livejson.File(self.path)
         self.assertIsInstance(f, livejson.DictFile)  # Test DictFile is default
         self.assertTrue(os.path.exists(self.path))
-        with open(self.path, "r") as fi:
+        with open(self.path) as fi:
             self.assertEqual(fi.read(), "{}")
         # Test writing to a file
         f["a"] = "b"
@@ -106,7 +106,7 @@ class TestFile(_BaseTest, unittest.TestCase):
         with self.assertRaises(TypeError):
             f[True] = "test"
         # Test that storing numeric keys raises a more helpful error message
-        with self.assertRaisesRegexp(TypeError, "Try using a"):
+        with self.assertRaisesRegex(TypeError, "Try using a"):
             f[0] = "abc"
         # When initializing using with_data, test that an error is thrown if
         # the file already exists
@@ -130,7 +130,7 @@ class TestFile(_BaseTest, unittest.TestCase):
     def test_rollback(self):
         """ Test that data can be restored in the case of an error to prevent
         corruption (see #3)"""
-        class Test (object):
+        class Test:
             pass
         f = livejson.File(self.path)
         f["a"] = "b"
@@ -205,7 +205,7 @@ class TestNesting(_BaseTest, unittest.TestCase):
         with self.assertRaises(TypeError):
             f["data"][True] = "test"
         # Test that storing numeric keys raises an additional error message
-        with self.assertRaisesRegexp(TypeError, "Try using a"):
+        with self.assertRaisesRegex(TypeError, "Try using a"):
             f["data"][0] = "abc"
 
 
@@ -265,7 +265,7 @@ class TestGroupedWrites(_BaseTest, unittest.TestCase):
         grouped writes. """
         with livejson.File(self.path) as f:
             f["cats"] = "dogs"
-        with open(self.path, "r") as fi:
+        with open(self.path) as fi:
             self.assertEqual(fi.read(), "{\"cats\": \"dogs\"}")
 
 

@@ -38,7 +38,7 @@ def _initfile(path, data="dict"):
         return False
 
 
-class _ObjectBase(object):
+class _ObjectBase:
     """Class inherited by most things.
 
     Implements the lowest common denominator for all emulating classes.
@@ -197,7 +197,7 @@ class _BaseFile(_ObjectBase):
         """
         if self.is_caching:
             return self.cache
-        with open(self.path, "r") as f:
+        with open(self.path) as f:
             return json.load(f)
 
     @property
@@ -269,7 +269,7 @@ class _BaseFile(_ObjectBase):
     @property
     def file_contents(self):
         """Get the raw file contents of the file."""
-        with open(self.path, "r") as f:
+        with open(self.path) as f:
             return f.read()
 
     # Grouped writes
@@ -328,7 +328,7 @@ class ListFile(_BaseFile, MutableSequence):
         self.data = []
 
 
-class File(object):
+class File:
     """The main interface of livejson. Emulates a list or a dict, updating a
     JSON file in real-time as it is modified.
 
@@ -348,7 +348,7 @@ class File(object):
 
         _initfile(self.path)
 
-        with open(self.path, "r") as f:
+        with open(self.path) as f:
             data = json.load(f)
         if isinstance(data, dict):
             self.__class__ = DictFile
