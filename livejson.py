@@ -23,7 +23,7 @@ def _initfile(path, data="dict"):
         # exist
         dirname = os.path.dirname(path)
         if dirname and not os.path.exists(dirname):
-            raise IOError(
+            raise IOError(  # TODO: better error (IOError is deprecated)
                 ("Could not initialize empty JSON file in non-existant "
                  "directory '{}'").format(os.path.dirname(path))
             )
