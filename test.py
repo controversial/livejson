@@ -35,7 +35,7 @@ class TestFile(_BaseTest, unittest.TestCase):
         self.assertEqual(newInstance["a"], "b")
         # Test deleting values
         f["c"] = "d"
-        self.assertIn("c", f)  # This also conviently tests __contains__
+        self.assertIn("c", f)  # This also conveniently tests __contains__
         del f["c"]
         self.assertNotIn("c", f)
 
@@ -88,7 +88,7 @@ class TestFile(_BaseTest, unittest.TestCase):
         f["dogs"] = "cats"
         self.assertIsInstance(f, livejson.DictFile)
 
-    def test_staticmethod_initalization(self):
+    def test_staticmethod_initialization(self):
         """ Test initializing the File in special ways with custom
         staticmethods """
         f = livejson.File.with_data(self.path, ["a", "b", "c"])
@@ -102,7 +102,7 @@ class TestFile(_BaseTest, unittest.TestCase):
         """ Test the errors that are set up """
         f = livejson.File(self.path)
 
-        # Test error for trying to initialize in non-existant directories
+        # Test error for trying to initialize in non-existent directories
         self.assertRaises(IOError, livejson.File, "a/b/c.py")
         # Test error when trying to store non-string keys
         with self.assertRaises(TypeError):
