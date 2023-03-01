@@ -4,12 +4,12 @@ As you change the contents of the dict, the JSON file will be updated in
 real-time. Magic.
 """
 
-import os
+from __future__ import annotations
+
 import json
+import os
 import warnings
-
 from collections.abc import MutableMapping, MutableSequence
-
 
 # MISC HELPERS
 
