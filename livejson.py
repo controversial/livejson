@@ -43,6 +43,7 @@ class _ObjectBase:
 
     Implements the lowest common denominator for all emulating classes.
     """
+
     def __getitem__(self, key):
         out = self.data[key]
 
@@ -86,6 +87,7 @@ class _NestedBase(_ObjectBase):
     object, and 'pathToThis' which specifies where in the JSON file this object
     exists (as a list).
     """
+
     def __init__(self, fileobj, pathToThis):
         self.pathInData = pathToThis
         self.base = fileobj
@@ -138,6 +140,7 @@ class _NestedDict(_NestedBase, MutableMapping):
 
     to update the file.
     """
+
     def __iter__(self):
         return iter(self.data)
 
@@ -163,6 +166,7 @@ class _NestedList(_NestedBase, MutableSequence):
 
     to update the file.
     """
+
     def insert(self, index, value):
         # See _NestedBase.__setitem__ for details on how this works
         data = self.base.data
@@ -181,6 +185,7 @@ class _BaseFile(_ObjectBase):
 
     This implements all the required methods common between
     MutableMapping and MutableSequence."""
+
     def __init__(self, path, pretty=False, sort_keys=False):
         self.path = path
         self.pretty = pretty
@@ -299,6 +304,7 @@ class DictFile(_BaseFile, MutableMapping):
     """A class emulating Python's dict that will update a JSON file as it is
     modified.
     """
+
     def __iter__(self):
         return iter(self.data)
 
@@ -315,6 +321,7 @@ class ListFile(_BaseFile, MutableSequence):
     modified. Use this class directly when creating a new file if you want the
     base object to be an array.
     """
+
     def insert(self, index, value):
         data = self.data
         data.insert(index, value)
@@ -380,4 +387,3 @@ class File:
 Database = File
 ListDatabase = ListFile
 DictDatabase = DictFile
-

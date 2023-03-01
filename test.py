@@ -13,9 +13,9 @@ class _BaseTest():
             os.remove(self.path)
 
 
-
 class TestFile(_BaseTest, unittest.TestCase):
     """ Test the magical JSON file class """
+
     def test_DictFile(self):
         """ Test that 'livejson.File's in which the base object is a dict work
         as expected. This also tests all the methods shared between both types.
@@ -213,6 +213,7 @@ class TestGroupedWrites(_BaseTest, unittest.TestCase):
     """ Test using "grouped writes" with the context manager. These improve
     efficiency by only writing to the file once, at the end, instead of
     writing every change as it is made. """
+
     def test_basics(self):
         f = livejson.File(self.path)
         with f:
