@@ -88,9 +88,9 @@ class TestFile(_BaseTest, unittest.TestCase):
         f["dogs"] = "cats"
         self.assertIsInstance(f, livejson.DictFile)
 
-    def test_staticmethod_initialization(self):
+    def test_classmethod_initialization(self):
         """ Test initializing the File in special ways with custom
-        staticmethods """
+        classmethods """
         f = livejson.File.with_data(self.path, ["a", "b", "c"])
         self.assertEqual(f.data, ["a", "b", "c"])
         # Test initialization from JSON string
