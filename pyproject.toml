@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=67.4.0", "setuptools-scm>=7.1.0"]  # Require latest version
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "livejson"
+# No version needed; setuptools-scm extracts tag from git automatically (see `dynamic = ["version"]`)
+authors = [
+    {name = "Luke Taylor", email = "luke@deentaylor.com"},
+]
+description = "Bind Python objects to JSON files"
+readme = "README.md"
+# TODO: add url/homepage: https://github.com/controversial/livejson/
+requires-python = ">=3.7"
+keywords = ["livejson", "json", "io", "development", "file", "files", "live", "update"]
+license = {file = "LICENCE"}
+classifiers = [
+    # TODO: One of:
+    "Development Status :: 1 - Planning",
+    "Development Status :: 2 - Pre-Alpha",
+    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
+    "Development Status :: 6 - Mature",
+    "Development Status :: 7 - Inactive",
+
+    "Typing :: Typed",
+    "Topic :: Database",
+    "Topic :: System :: Monitoring",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "requests",
+    'importlib-metadata; python_version<"3.8"',
+]
+dynamic = ["version"]
+
+[tool.setuptools]
+py-modules = ["livejson"]
