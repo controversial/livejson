@@ -37,4 +37,4 @@ classifiers = [
 dynamic = ["version"]
 
 [tool.setuptools]
-py-modules = ["livejson"]
+packages = ["livejson"]
