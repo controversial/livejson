@@ -149,13 +149,8 @@ class TestFile(_BaseTest, unittest.TestCase):
         f["a"] = "b"
         assert f.file_contents == '{\n  "a": "b"\n}'
         f.indent = 4
-<<<<<<< HEAD
-        f.set_data(f.data)  # Force an update
-        assert f.file_contents == '{\n    "a": "b"\n}'
-=======
         f.data = f.data  # Force an update
-        self.assertEqual(f.file_contents, '{\n    "a": "b"\n}')
->>>>>>> d8a75d4f36e6f421f7c4f3e4723009909d85c1b7
+        assert f.file_contents == '{\n    "a": "b"\n}'
 
         # Test sorting of keys
         f["b"] = "c"
@@ -249,19 +244,11 @@ class TestGroupedWrites(_BaseTest, unittest.TestCase):
         """ Test the switching of classes in the middle of a grouped write """
         f = livejson.File(self.path)
         with f:
-<<<<<<< HEAD
             assert isinstance(f, livejson.DictFile)
-            f.set_data([])
+            f.data = []
             assert isinstance(f, livejson.ListFile)
             assert f.file_contents == "{}"
         assert f.file_contents == "[]"
-=======
-            self.assertIsInstance(f, livejson.DictFile)
-            f.data = []
-            self.assertIsInstance(f, livejson.ListFile)
-            self.assertEqual(f.file_contents, "{}")
-        self.assertEqual(f.file_contents, "[]")
->>>>>>> d8a75d4f36e6f421f7c4f3e4723009909d85c1b7
 
     def test_misc(self):
         """ Test miscellaneous other things that seem like they might break
@@ -285,25 +272,5 @@ class TestGroupedWrites(_BaseTest, unittest.TestCase):
             assert fi.read() == "{\"cats\": \"dogs\"}"
 
 
-<<<<<<< HEAD
-class TestAliases(_BaseTest, unittest.TestCase):
-    def test_Database(self):
-        db = livejson.Database(self.path)
-        assert os.path.exists(self.path)
-        assert db.data == {}
-
-    def test_ListDatabase(self):
-        db = livejson.ListDatabase(self.path)
-        assert os.path.exists(self.path)
-        assert db.data == []
-
-    def test_DictDatabase(self):
-        db = livejson.DictDatabase(self.path)
-        assert os.path.exists(self.path)
-        assert db.data == {}
-
-
-=======
->>>>>>> d8a75d4f36e6f421f7c4f3e4723009909d85c1b7
 if __name__ == "__main__":
     unittest.main()
