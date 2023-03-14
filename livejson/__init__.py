@@ -381,9 +381,3 @@ class File:
             f = cls(path, *args, **kwargs)
             f.data = data
             return f
-
-
-# Aliases for backwards-compatibility
-Database = File
-ListDatabase = ListFile
-DictDatabase = DictFile
