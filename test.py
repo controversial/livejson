@@ -79,7 +79,7 @@ class TestFile(_BaseTest, unittest.TestCase):
         # Test switching under normal usage
         f = livejson.File(self.path)
         self.assertIsInstance(f, livejson.DictFile)
-        f.set_data([])
+        f.data = []
         self.assertIsInstance(f, livejson.ListFile)
         # Test switching when the file is manually changed
         with open(self.path, "w") as fi:
@@ -147,7 +147,7 @@ class TestFile(_BaseTest, unittest.TestCase):
         f["a"] = "b"
         self.assertEqual(f.file_contents, '{\n  "a": "b"\n}')
         f.indent = 4
-        f.set_data(f.data)  # Force an update
+        f.data = f.data  # Force an update
         self.assertEqual(f.file_contents, '{\n    "a": "b"\n}')
 
         # Test sorting of keys
@@ -245,7 +245,7 @@ class TestGroupedWrites(_BaseTest, unittest.TestCase):
         f = livejson.File(self.path)
         with f:
             self.assertIsInstance(f, livejson.DictFile)
-            f.set_data([])
+            f.data = []
             self.assertIsInstance(f, livejson.ListFile)
             self.assertEqual(f.file_contents, "{}")
         self.assertEqual(f.file_contents, "[]")

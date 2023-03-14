@@ -258,15 +258,6 @@ class _BaseFile(_ObjectBase):
 
     # Bonus features!
 
-    def set_data(self, data):
-        """Equivalent to setting the "data" attribute. Exists for backwards
-        compatibility."""
-        warnings.warn(
-            "set_data is deprecated; please set .data instead.",
-            DeprecationWarning
-        )
-        self.data = data
-
     def remove(self):
         """Delete the file from the disk completely."""
         os.remove(self.path)
