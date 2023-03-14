@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import json
 import os
-import warnings
 from collections.abc import MutableMapping, MutableSequence
 
 # MISC HELPERS
@@ -258,15 +257,6 @@ class _BaseFile(_ObjectBase):
 
     # Bonus features!
 
-    def set_data(self, data):
-        """Equivalent to setting the "data" attribute. Exists for backwards
-        compatibility."""
-        warnings.warn(
-            "set_data is deprecated; please set .data instead.",
-            DeprecationWarning
-        )
-        self.data = data
-
     def remove(self):
         """Delete the file from the disk completely."""
         os.remove(self.path)
@@ -381,9 +371,3 @@ class File:
             f = cls(path, *args, **kwargs)
             f.data = data
             return f
-
-
-# Aliases for backwards-compatibility
-Database = File
-ListDatabase = ListFile
-DictDatabase = DictFile
