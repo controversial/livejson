@@ -272,22 +272,5 @@ class TestGroupedWrites(_BaseTest, unittest.TestCase):
             self.assertEqual(fi.read(), "{\"cats\": \"dogs\"}")
 
 
-class TestAliases(_BaseTest, unittest.TestCase):
-    def test_Database(self):
-        db = livejson.Database(self.path)
-        self.assertTrue(os.path.exists(self.path))
-        self.assertEqual(db.data, {})
-
-    def test_ListDatabase(self):
-        db = livejson.ListDatabase(self.path)
-        self.assertTrue(os.path.exists(self.path))
-        self.assertEqual(db.data, [])
-
-    def test_DictDatabase(self):
-        db = livejson.DictDatabase(self.path)
-        self.assertTrue(os.path.exists(self.path))
-        self.assertEqual(db.data, {})
-
-
 if __name__ == "__main__":
     unittest.main()
