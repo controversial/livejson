@@ -4,39 +4,36 @@ As you change the contents of the dict, the JSON file will be updated in
 real-time. Magic.
 """
 
-import os
+from __future__ import annotations
+
+import enum
 import json
-import warnings
+import os
+from collections.abc import MutableMapping, MutableSequence
+from enum import Enum
+from typing import Union, Any
 
-# Import from collections.abc for Python 3.x but incase of ImportError
-# from Python 2.x, fall back on importing from collections.
-try:
-    from collections.abc import (
-        MutableMapping,
-        MutableSequence,
-    )
-except ImportError: 
-    from collections import (
-        MutableMapping,
-        MutableSequence,
-    )
-
-warnings.filterwarnings("once", category=DeprecationWarning)
+PathLike = Union[str, os.PathLike]
 
 
 # MISC HELPERS
 
 
-def _initfile(path, data="dict"):
+class _DataType(Enum):
+    List = enum.auto()
+    Dict = enum.auto()
+
+
+def _initfile(path: PathLike, data_type: _DataType = _DataType.Dict) -> bool | None:  # TODO: is return really neccessary? Not used anywhere
     """Initialize an empty JSON file."""
-    data = {} if data.lower() == "dict" else []
+    data: dict[Any, Any] | list[Any] = {} if data_type is _DataType.Dict else []
     # The file will need to be created if it doesn't exist
     if not os.path.exists(path):  # The file doesn't exist
         # Raise exception if the directory that should contain the file doesn't
         # exist
         dirname = os.path.dirname(path)
         if dirname and not os.path.exists(dirname):
-            raise IOError(
+            raise IOError(  # TODO: better error (IOError is deprecated)
                 ("Could not initialize empty JSON file in non-existant "
                  "directory '{}'").format(os.path.dirname(path))
             )
@@ -51,11 +48,12 @@ def _initfile(path, data="dict"):
         return False
 
 
-class _ObjectBase(object):
+class _ObjectBase:
     """Class inherited by most things.
 
     Implements the lowest common denominator for all emulating classes.
     """
+
     def __getitem__(self, key):
         out = self.data[key]
 
@@ -99,6 +97,7 @@ class _NestedBase(_ObjectBase):
     object, and 'pathToThis' which specifies where in the JSON file this object
     exists (as a list).
     """
+
     def __init__(self, fileobj, pathToThis):
         self.pathInData = pathToThis
         self.base = fileobj
@@ -151,6 +150,7 @@ class _NestedDict(_NestedBase, MutableMapping):
 
     to update the file.
     """
+
     def __iter__(self):
         return iter(self.data)
 
@@ -176,6 +176,7 @@ class _NestedList(_NestedBase, MutableSequence):
 
     to update the file.
     """
+
     def insert(self, index, value):
         # See _NestedBase.__setitem__ for details on how this works
         data = self.base.data
@@ -194,6 +195,7 @@ class _BaseFile(_ObjectBase):
 
     This implements all the required methods common between
     MutableMapping and MutableSequence."""
+
     def __init__(self, path, pretty=False, sort_keys=False):
         self.path = path
         self.pretty = pretty
@@ -201,7 +203,7 @@ class _BaseFile(_ObjectBase):
         self.indent = 2  # Default indentation level
 
         _initfile(self.path,
-                  "list" if isinstance(self, ListFile) else "dict")
+                  _DataType.List if isinstance(self, ListFile) else _DataType.Dict)
 
     def _data(self):
         """A simpler version of data to avoid infinite recursion in some cases.
@@ -210,7 +212,7 @@ class _BaseFile(_ObjectBase):
         """
         if self.is_caching:
             return self.cache
-        with open(self.path, "r") as f:
+        with open(self.path) as f:
             return json.load(f)
 
     @property
@@ -266,15 +268,6 @@ class _BaseFile(_ObjectBase):
 
     # Bonus features!
 
-    def set_data(self, data):
-        """Equivalent to setting the "data" attribute. Exists for backwards
-        compatibility."""
-        warnings.warn(
-            "set_data is deprecated; please set .data instead.",
-            DeprecationWarning
-        )
-        self.data = data
-
     def remove(self):
         """Delete the file from the disk completely."""
         os.remove(self.path)
@@ -282,7 +275,7 @@ class _BaseFile(_ObjectBase):
     @property
     def file_contents(self):
         """Get the raw file contents of the file."""
-        with open(self.path, "r") as f:
+        with open(self.path) as f:
             return f.read()
 
     # Grouped writes
@@ -312,6 +305,7 @@ class DictFile(_BaseFile, MutableMapping):
     """A class emulating Python's dict that will update a JSON file as it is
     modified.
     """
+
     def __iter__(self):
         return iter(self.data)
 
@@ -328,6 +322,7 @@ class ListFile(_BaseFile, MutableSequence):
     modified. Use this class directly when creating a new file if you want the
     base object to be an array.
     """
+
     def insert(self, index, value):
         data = self.data
         data.insert(index, value)
@@ -341,7 +336,7 @@ class ListFile(_BaseFile, MutableSequence):
         self.data = []
 
 
-class File(object):
+class File:
     """The main interface of livejson. Emulates a list or a dict, updating a
     JSON file in real-time as it is modified.
 
@@ -361,15 +356,15 @@ class File(object):
 
         _initfile(self.path)
 
-        with open(self.path, "r") as f:
+        with open(self.path) as f:
             data = json.load(f)
         if isinstance(data, dict):
             self.__class__ = DictFile
         elif isinstance(data, list):
             self.__class__ = ListFile
 
-    @staticmethod
-    def with_data(path, data, *args, **kwargs):
+    @classmethod
+    def with_data(cls, path, data, *args, **kwargs):
         """Initialize a new file that starts out with some data. Pass data
         as a list, dict, or JSON string.
         """
@@ -384,13 +379,6 @@ class File(object):
                              "'livejson.File' instance if you really "
                              "want to do this.")
         else:
-            f = File(path, *args, **kwargs)
+            f = cls(path, *args, **kwargs)
             f.data = data
             return f
-
-
-# Aliases for backwards-compatibility
-Database = File
-ListDatabase = ListFile
-DictDatabase = DictFile
-
