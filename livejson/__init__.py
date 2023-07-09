@@ -11,8 +11,7 @@ import json
 import os
 from collections.abc import MutableMapping, MutableSequence
 from enum import Enum
-from typing import Union
-
+from typing import Union, Any
 
 PathLike = Union[str, os.PathLike]
 
@@ -27,7 +26,7 @@ class _DataType(Enum):
 
 def _initfile(path: PathLike, data_type: _DataType = _DataType.Dict) -> bool | None:  # TODO: is return really neccessary? Not used anywhere
     """Initialize an empty JSON file."""
-    data = {} if data_type is _DataType.Dict else []
+    data: dict[Any, Any] | list[Any] = {} if data_type is _DataType.Dict else []
     # The file will need to be created if it doesn't exist
     if not os.path.exists(path):  # The file doesn't exist
         # Raise exception if the directory that should contain the file doesn't
