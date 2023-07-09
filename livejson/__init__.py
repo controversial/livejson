@@ -6,16 +6,28 @@ real-time. Magic.
 
 from __future__ import annotations
 
+import enum
 import json
 import os
 from collections.abc import MutableMapping, MutableSequence
+from enum import Enum
+from typing import Union
+
+
+PathLike = Union[str, os.PathLike]
+
 
 # MISC HELPERS
 
 
-def _initfile(path, data="dict"):
+class _DataType(Enum):
+    List = enum.auto()
+    Dict = enum.auto()
+
+
+def _initfile(path: PathLike, data_type: _DataType = _DataType.Dict) -> bool | None:  # TODO: is return really neccessary? Not used anywhere
     """Initialize an empty JSON file."""
-    data = {} if data.lower() == "dict" else []
+    data = {} if data_type is _DataType.Dict else []
     # The file will need to be created if it doesn't exist
     if not os.path.exists(path):  # The file doesn't exist
         # Raise exception if the directory that should contain the file doesn't
@@ -192,7 +204,7 @@ class _BaseFile(_ObjectBase):
         self.indent = 2  # Default indentation level
 
         _initfile(self.path,
-                  "list" if isinstance(self, ListFile) else "dict")
+                  _DataType.List if isinstance(self, ListFile) else _DataType.Dict)
 
     def _data(self):
         """A simpler version of data to avoid infinite recursion in some cases.
